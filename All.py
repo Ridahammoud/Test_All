@@ -21,19 +21,18 @@ if fichier_principal is not None:
         col_prenom_nom = st.selectbox("Choisissez la colonne pour 'Prénom et nom'", df_principal.columns)
         col_date = st.selectbox("Choisissez la colonne de date", df_principal.columns)
         
-        df_principal[col_date] = pd.to_datetime(df_principal[col_date])
-        
         operateurs = df_principal[col_prenom_nom].unique()
         operateurs_selectionnes = st.multiselect("Choisissez un ou plusieurs opérateurs", operateurs)
         
         periodes = ["Jour", "Semaine", "Mois", "Trimestre", "Année", "Total"]
         periode_selectionnee = st.selectbox("Choisissez une période", periodes)
         
-        date_min = df_principal[col_date].min().date()
-        date_max = df_principal[col_date].max().date()
+        date_min = pd.to_datetime(df_principal[col_date]).min().date()
+        date_max = pd.to_datetime(df_principal[col_date]).max().date()
         debut_periode = st.date_input("Début de la période pour le tirage au sort", min_value=date_min, max_value=date_max, value=date_min)
     
     if st.button("Analyser"):
+        df_principal[col_date] = pd.to_datetime(df_principal[col_date])
         df_principal['Jour'] = df_principal[col_date].dt.date
         df_principal['Semaine'] = df_principal[col_date].dt.to_period('W').astype(str)
         df_principal['Mois'] = df_principal[col_date].dt.to_period('M').astype(str)
@@ -63,18 +62,24 @@ if fichier_principal is not None:
         
         st.dataframe(tableau_affichage, use_container_width=True)
         
-        st.subheader("Tirage au sort de deux lignes par opérateur")
-        if st.button("🎲 Lancer le tirage au sort", key="tirage"):
-            df_filtre = df_principal[df_principal[col_date].dt.date >= debut_periode]
-            for operateur in operateurs_selectionnes:
+        st.session_state.df_filtre = df_principal[df_principal[col_date].dt.date >= debut_periode]
+        st.session_state.operateurs_selectionnes = operateurs_selectionnes
+        st.session_state.col_prenom_nom = col_prenom_nom
+
+    st.subheader("Tirage au sort de deux lignes par opérateur")
+    if st.button("🎲 Lancer le tirage au sort", key="tirage"):
+        if 'df_filtre' in st.session_state:
+            for operateur in st.session_state.operateurs_selectionnes:
                 st.write(f"Tirage pour {operateur}:")
-                df_operateur = df_filtre[df_filtre[col_prenom_nom] == operateur]
+                df_operateur = st.session_state.df_filtre[st.session_state.df_filtre[st.session_state.col_prenom_nom] == operateur]
                 lignes_tirees = df_operateur.sample(n=min(2, len(df_operateur)))
                 if not lignes_tirees.empty:
                     st.dataframe(lignes_tirees, use_container_width=True)
                 else:
                     st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
                 st.write("---")
+        else:
+            st.warning("Veuillez d'abord cliquer sur 'Analyser' avant de lancer le tirage au sort.")
 
     if st.checkbox("Afficher toutes les données"):
         st.dataframe(df_principal)
