@@ -3,6 +3,7 @@ import streamlit as st
 from datetime import datetime, timedelta
 import plotly.express as px
 
+@st.cache_data
 def charger_donnees(fichier):
     return pd.read_excel(fichier)
 
@@ -29,7 +30,7 @@ if fichier_principal is not None:
         
         date_min = pd.to_datetime(df_principal[col_date]).min().date()
         date_max = pd.to_datetime(df_principal[col_date]).max().date()
-        debut_periode = st.date_input("Début de la période pour le tirage au sort", min_value=date_min, max_value=date_max, value=date_min)
+        debut_periode = st.date_input("Début de la période", min_value=date_min, max_value=date_max, value=date_min)
     
     if st.button("Analyser"):
         df_principal[col_date] = pd.to_datetime(df_principal[col_date])
@@ -39,47 +40,47 @@ if fichier_principal is not None:
         df_principal['Trimestre'] = df_principal[col_date].dt.to_period('Q').astype(str)
         df_principal['Année'] = df_principal[col_date].dt.year
 
+        # Filtrer les données pour le graphique
+        df_graph = df_principal[df_principal[col_date].dt.date >= debut_periode]
+
         groupby_cols = [col_prenom_nom]
         if periode_selectionnee != "Total":
             groupby_cols.append(periode_selectionnee)
         
-        repetitions = df_principal[df_principal[col_prenom_nom].isin(operateurs_selectionnes)].groupby(groupby_cols).size().reset_index(name='Repetitions')
+        repetitions_graph = df_graph[df_graph[col_prenom_nom].isin(operateurs_selectionnes)].groupby(groupby_cols).size().reset_index(name='Repetitions')
+        
+        # Calcul des répétitions pour le tableau (toutes les dates)
+        repetitions_tableau = df_principal[df_principal[col_prenom_nom].isin(operateurs_selectionnes)].groupby(groupby_cols).size().reset_index(name='Repetitions')
         
         with col2:
             if periode_selectionnee != "Total":
-                fig = px.bar(repetitions, x=periode_selectionnee, y='Repetitions', color=col_prenom_nom, barmode='group',
-                             title=f"Répétitions par {periode_selectionnee.lower()} pour les opérateurs sélectionnés")
+                fig = px.bar(repetitions_graph, x=periode_selectionnee, y='Repetitions', color=col_prenom_nom, barmode='group',
+                             title=f"Répétitions par {periode_selectionnee.lower()} pour les opérateurs sélectionnés (à partir de {debut_periode})")
             else:
-                fig = px.bar(repetitions, x=col_prenom_nom, y='Repetitions',
-                             title="Total des répétitions pour les opérateurs sélectionnés")
+                fig = px.bar(repetitions_graph, x=col_prenom_nom, y='Repetitions',
+                             title=f"Total des répétitions pour les opérateurs sélectionnés (à partir de {debut_periode})")
             
             st.plotly_chart(fig)
         
-        st.subheader(f"Tableau des répétitions par {periode_selectionnee.lower()}")
+        st.subheader(f"Tableau des répétitions par {periode_selectionnee.lower()} (toutes les dates)")
         
         colonnes_affichage = [col_prenom_nom, periode_selectionnee, 'Repetitions'] if periode_selectionnee != "Total" else [col_prenom_nom, 'Repetitions']
-        tableau_affichage = repetitions[colonnes_affichage]
+        tableau_affichage = repetitions_tableau[colonnes_affichage]
         
         st.dataframe(tableau_affichage, use_container_width=True)
         
-        st.session_state.df_filtre = df_principal[df_principal[col_date].dt.date >= debut_periode]
-        st.session_state.operateurs_selectionnes = operateurs_selectionnes
-        st.session_state.col_prenom_nom = col_prenom_nom
-
-    st.subheader("Tirage au sort de deux lignes par opérateur")
-    if st.button("🎲 Lancer le tirage au sort", key="tirage"):
-        if 'df_filtre' in st.session_state:
-            for operateur in st.session_state.operateurs_selectionnes:
-                st.write(f"Tirage pour {operateur}:")
-                df_operateur = st.session_state.df_filtre[st.session_state.df_filtre[st.session_state.col_prenom_nom] == operateur]
-                lignes_tirees = df_operateur.sample(n=min(2, len(df_operateur)))
-                if not lignes_tirees.empty:
-                    st.dataframe(lignes_tirees, use_container_width=True)
-                else:
-                    st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
-                st.write("---")
-        else:
-            st.warning("Veuillez d'abord cliquer sur 'Analyser' avant de lancer le tirage au sort.")
+        # Tirage au sort
+        st.subheader("Tirage au sort de deux lignes par opérateur")
+        df_filtre = df_principal[df_principal[col_date].dt.date >= debut_periode]
+        for operateur in operateurs_selectionnes:
+            st.write(f"Tirage pour {operateur}:")
+            df_operateur = df_filtre[df_filtre[col_prenom_nom] == operateur]
+            lignes_tirees = df_operateur.sample(n=min(2, len(df_operateur)))
+            if not lignes_tirees.empty:
+                st.dataframe(lignes_tirees, use_container_width=True)
+            else:
+                st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
+            st.write("---")
 
     if st.checkbox("Afficher toutes les données"):
         st.dataframe(df_principal)
