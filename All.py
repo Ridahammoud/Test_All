@@ -31,6 +31,7 @@ if fichier_principal is not None:
         date_min = pd.to_datetime(df_principal[col_date]).min().date()
         date_max = pd.to_datetime(df_principal[col_date]).max().date()
         debut_periode = st.date_input("Début de la période", min_value=date_min, max_value=date_max, value=date_min)
+        fin_periode = st.date_input("Fin de la période", min_value=date_min, max_value=date_max, value=date_max)
     
     if st.button("Analyser"):
         df_principal[col_date] = pd.to_datetime(df_principal[col_date])
@@ -41,7 +42,7 @@ if fichier_principal is not None:
         df_principal['Année'] = df_principal[col_date].dt.year
 
         # Filtrer les données pour le graphique
-        df_graph = df_principal[df_principal[col_date].dt.date >= debut_periode]
+        df_graph = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
 
         groupby_cols = [col_prenom_nom]
         if periode_selectionnee != "Total":
@@ -55,7 +56,7 @@ if fichier_principal is not None:
         with col2:
             if periode_selectionnee != "Total":
                 fig = px.bar(repetitions_graph, x=periode_selectionnee, y='Repetitions', color=col_prenom_nom, barmode='group',
-                             title=f"Répétitions par {periode_selectionnee.lower()} pour les opérateurs sélectionnés (à partir de {debut_periode})")
+                             title=f"Nombre de Rapport d'intervention par {periode_selectionnee.lower()} pour les opérateurs sélectionnés (à partir de {debut_periode})")
             else:
                 fig = px.bar(repetitions_graph, x=col_prenom_nom, y='Repetitions',
                              title=f"Total des répétitions pour les opérateurs sélectionnés (à partir de {debut_periode})")
