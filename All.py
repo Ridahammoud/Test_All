@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 from io import BytesIO
 import xlsxwriter
 from reportlab.lib.pagesizes import letter
@@ -126,20 +127,35 @@ if fichier_principal is not None:
         repetitions_tableau = df_principal[df_principal[col_prenom_nom].isin(operateurs_selectionnes)].groupby(groupby_cols).size().reset_index(name='Repetitions')
         
         # Affichage du graphique avec les valeurs des répétitions et couleurs par opérateur
-        with col2:
-            fig = px.bar(repetitions_graph, 
-                         x=periode_selectionnee if periode_selectionnee != "Jour" else col_prenom_nom,
-                         y='Repetitions',
-                         barmode='group',
-                         color=col_prenom_nom,  # Ajout de la colonne 'Prénom et nom' pour les couleurs
-                         title=f"Nombre de rapports d'intervention (du {debut_periode} au {fin_periode})")
-            fig.update_traces(text=repetitions_graph['Repetitions'], textposition='outside')
+        with col1:
+            moyenne_totale = repetitions_graph['Repetitions'].mean()
+            
+            # Créer le graphique
+            fig = go.Figure()
+
+            # Courbe des moyennes par période et opérateur
+            for operateur in operateurs_selectionnes:
+                df_operateur = repetitions_graph[repetitions_graph[col_prenom_nom] == operateur]
+                fig.add_trace(go.Scatter(x=df_operateur[periode_selectionnee], 
+                                         y=df_operateur['Repetitions'], 
+                                         mode='lines+markers', 
+                                         name=operateur))
+
+            # Ajouter la ligne de la moyenne totale
+            fig.add_trace(go.Scatter(x=repetitions_graph[periode_selectionnee], 
+                                     y=[moyenne_totale] * len(repetitions_graph), 
+                                     mode='lines', 
+                                     name="Moyenne Totale", 
+                                     line=dict(dash='dash', color='red')))
+
+            fig.update_layout(title=f"Moyennes par période et opérateur (du {debut_periode} au {fin_periode})",
+                              xaxis_title=periode_selectionnee,
+                              yaxis_title="Répetitions",
+                              template="plotly_dark")
             st.plotly_chart(fig)
 
-            # Calcul de la moyenne totale par période
-            moyenne_totale = repetitions_graph['Repetitions'].mean()
             st.write(f"### Moyenne totale par période : {moyenne_totale:.2f}")
-            
+
             # Calcul de la moyenne par période et par opérateur
             moyenne_par_operateur = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom])['Repetitions'].mean().reset_index()
             st.write("### Moyenne par période et par opérateur :")
@@ -152,31 +168,14 @@ if fichier_principal is not None:
         st.subheader(f"Tableau du nombre des rapports d'intervention par {periode_selectionnee.lower()} (toutes les dates)")
         colonnes_affichage = [col_prenom_nom, periode_selectionnee, 'Repetitions'] if periode_selectionnee != "Total" else [col_prenom_nom, 'Repetitions']
         tableau_affichage = repetitions_tableau[colonnes_affichage]
+        
         st.dataframe(tableau_affichage, use_container_width=True)
-
-        st.subheader("Tirage au sort de deux lignes par opérateur")
-        df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
-        for operateur in operateurs_selectionnes:
-            st.write(f"Tirage pour {operateur}:")
-            df_operateur = df_filtre[df_filtre[col_prenom_nom] == operateur]
-            lignes_tirees = df_operateur.sample(n=min(2, len(df_operateur)))
-            if not lignes_tirees.empty:
-                lignes_tirees['Photo'] = lignes_tirees['Photo'].apply(lambda x: f'<img src="{x}" width="100"/>')
-                lignes_tirees['Photo 2'] = lignes_tirees['Photo 2'].apply(lambda x: f'<img src="{x}" width="100"/>')
-                st.markdown(lignes_tirees.to_html(escape=False), unsafe_allow_html=True)
-            else:
-                st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
-            st.write("---")
-
-        st.subheader("Télécharger le tableau des rapports d'interventions")
+        
+        # Télécharger les fichiers
         xlsx_data = convert_df_to_xlsx(repetitions_tableau)
         st.download_button(label="Télécharger en XLSX", data=xlsx_data, file_name="NombredesRapports.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-
-        st.subheader("Télécharger le tableau des rapports d'interventions en PDF")
+        
         pdf_filename = "repetitions.pdf"
         generate_pdf(repetitions_tableau, pdf_filename)
         with open(pdf_filename, "rb") as f:
             st.download_button(label="Télécharger en PDF", data=f, file_name=pdf_filename, mime="application/pdf")
-
-    if st.checkbox("Afficher toutes les données"):
-        st.dataframe(df_principal)
