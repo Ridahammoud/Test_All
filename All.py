@@ -63,7 +63,7 @@ fichier_principal = st.file_uploader("Choisissez le fichier principal (donnee_Ae
 if fichier_principal is not None:
     df_principal = charger_donnees(fichier_principal)
     
-    col1, col2 = st.columns([1, 2])
+    col1, col2 = st.columns([2, 2])  # Modifier les tailles des colonnes pour donner plus d'espace aux graphiques
     
     with col1:
         col_prenom_nom = df_principal.columns[4]
@@ -119,12 +119,13 @@ if fichier_principal is not None:
                 df_operateur = repetitions_graph[repetitions_graph[col_prenom_nom] == operateur]
                 fig.add_trace(go.Bar(x=df_operateur[periode_selectionnee],
                                      y=df_operateur['Repetitions'],
-                                     fig.update_traces(texttemplate='%{y}', textposition='outside')
-                                     name=operateur))
+                                     name=operateur,
+                                     text=df_operateur['Repetitions'],
+                                     textposition='auto'))  # Afficher les valeurs sur les barres
             
             fig.update_layout(title=f"Nombre de rapports d'intervention (du {debut_periode} au {fin_periode})",
                               xaxis_title=periode_selectionnee,
-                              yaxis_title="Nbr de rapport d'intervention",
+                              yaxis_title="Répetitions",
                               template="plotly_dark")
             st.plotly_chart(fig)
 
@@ -140,8 +141,10 @@ if fichier_principal is not None:
                 fig1.add_trace(go.Scatter(x=df_operateur_moyenne[periode_selectionnee], 
                                           y=df_operateur_moyenne['Repetitions'], 
                                           mode='lines+markers', 
-                                          name=operateur))
-
+                                          name=operateur,
+                                          text=df_operateur_moyenne['Repetitions'],
+                                          textposition='top center'))  # Afficher les valeurs des moyennes
+            
             moyenne_totale = moyennes_par_periode['Repetitions'].mean()
             fig1.add_trace(go.Scatter(x=moyennes_par_periode[periode_selectionnee], 
                                       y=[moyenne_totale] * len(moyennes_par_periode), 
@@ -151,7 +154,7 @@ if fichier_principal is not None:
 
             fig1.update_layout(title=f"Moyennes par opérateur (du {debut_periode} au {fin_periode})",
                                xaxis_title=periode_selectionnee,
-                               yaxis_title="Moyenne des rapports d'interventions",
+                               yaxis_title="Moyenne des répétitions",
                                template="plotly_dark")
             st.plotly_chart(fig1)
 
@@ -174,6 +177,21 @@ if fichier_principal is not None:
             if not lignes_tirees.empty:
                 lignes_tirees['Photo'] = lignes_tirees['Photo'].apply(lambda x: f'<img src="{x}" width="100"/>')
                 lignes_tirees['Photo 2'] = lignes_tirees['Photo 2'].apply(lambda x: f'<img src="{x}" width="100"/>')
-                st.write(lignes_tirees.to_html(escape=False), unsafe_allow_html=True)
+                st.markdown(lignes_tirees.to_html(escape=False), unsafe_allow_html=True)
             else:
                 st.write("Aucune ligne disponible pour ce tirage.")
+            
+            st.write("---")
+
+        st.subheader("Télécharger le tableau des rapports d'interventions")
+        xlsx_data = convert_df_to_xlsx(repetitions_tableau)
+        st.download_button(label="Télécharger en XLSX", data=xlsx_data, file_name="NombredesRapports.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+        st.subheader("Télécharger le tableau des rapports d'interventions en PDF")
+        pdf_filename = "repetitions.pdf"
+        generate_pdf(repetitions_tableau, pdf_filename)
+        with open(pdf_filename, "rb") as f:
+            st.download_button(label="Télécharger en PDF", data=f, file_name=pdf_filename, mime="application/pdf")
+
+    if st.checkbox("Afficher toutes les données"):
+        st.dataframe(df_principal)
