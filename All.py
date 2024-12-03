@@ -20,6 +20,22 @@ def convert_df_to_xlsx(df):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
     return output.getvalue()
 
+def style_moyennes(df, top_n=5, bottom_n=5):
+    # Appliquer un style pour les top n et bottom n
+    df_top = df.nlargest(top_n, 'Repetitions')
+    df_bottom = df.nsmallest(bottom_n, 'Repetitions')
+
+    def apply_styles(row):
+        if row.name in df_top.index:
+            return ['background-color: lightblue'] * len(row)  # Blue color for top
+        elif row.name in df_bottom.index:
+            return ['background-color: lightcoral; color: white'] * len(row)  # Red color for bottom
+        else:
+            return [''] * len(row)  # No style for others
+
+    styled_df = df.style.apply(apply_styles, axis=1)
+    return styled_df
+
 # Fonction pour générer un PDF
 def generate_pdf(df, filename="tableau.pdf"):
     c = canvas.Canvas(filename, pagesize=letter)
@@ -155,7 +171,11 @@ if fichier_principal is not None:
                                yaxis_title="Moyenne des répétitions",
                                template="plotly_dark")
             st.plotly_chart(fig1)
-
+        with col2:
+            # Appliquer le style
+            styled_df = style_moyennes(moyenne_par_operateur)
+            st.dataframe(styled_df, use_container_width=True)
+            
         # Affichage du tableau des répétitions
         st.write("### Tableau des répétitions par opérateur et période")
         st.dataframe(repetitions_graph)
