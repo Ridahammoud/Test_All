@@ -1,6 +1,5 @@
 import pandas as pd
 import streamlit as st
-from datetime import datetime, timedelta
 import plotly.express as px
 from io import BytesIO
 import xlsxwriter
@@ -33,6 +32,23 @@ def generate_pdf(df, filename="tableau.pdf"):
     
     c.save()
 
+# Calcul des moyennes et ajout des styles
+def style_moyennes(df, top_n=5, bottom_n=5):
+    # Appliquer un style pour les top n et bottom n
+    df_top = df.nlargest(top_n, 'Repetitions')
+    df_bottom = df.nsmallest(bottom_n, 'Repetitions')
+
+    def apply_styles(row):
+        if row.name in df_top.index:
+            return ['background-color: lightblue'] * len(row)  # Blue color for top
+        elif row.name in df_bottom.index:
+            return ['background-color: lightcoral; color: white'] * len(row)  # Red color for bottom
+        else:
+            return [''] * len(row)  # No style for others
+
+    styled_df = df.style.apply(apply_styles, axis=1)
+    return styled_df
+
 # Configuration de la page Streamlit
 st.set_page_config(page_title="Analyse des Interventions", page_icon="📊", layout="wide")
 
@@ -51,7 +67,8 @@ if fichier_principal is not None:
         col_prenom_nom = df_principal.columns[4]  # Sélection automatique de la première colonne
         col_date = st.selectbox("Choisissez la colonne de date", df_principal.columns)
         
-        operateurs = df_principal[col_prenom_nom].unique()
+        operateurs = df_principal[col_prenom_nom].unique().tolist()  # .tolist() garantit que c'est une liste
+        operateurs.append("Total")  # Ajout de l'option "Total"
         operateurs_selectionnes = st.multiselect("Choisissez un ou plusieurs opérateurs", operateurs)
         
         periodes = ["Jour", "Semaine", "Mois", "Trimestre", "Année", "Total"]
@@ -89,6 +106,10 @@ if fichier_principal is not None:
         # Filtrer les données pour la période sélectionnée
         df_graph = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
 
+        # Si "Total" est sélectionné, on inclut tous les opérateurs
+        if "Total" in operateurs_selectionnes:
+            operateurs_selectionnes = df_principal[col_prenom_nom].unique().tolist()  # Utilise tous les opérateurs disponibles
+        
         # Choisir les colonnes pour grouper les données
         groupby_cols = [col_prenom_nom]
         if periode_selectionnee != "Total":
@@ -122,7 +143,10 @@ if fichier_principal is not None:
             # Calcul de la moyenne par période et par opérateur
             moyenne_par_operateur = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom])['Repetitions'].mean().reset_index()
             st.write("### Moyenne par période et par opérateur :")
-            st.dataframe(moyenne_par_operateur, use_container_width=True)
+            
+            # Appliquer le style
+            styled_df = style_moyennes(moyenne_par_operateur)
+            st.dataframe(styled_df, use_container_width=True)
 
         # Affichage du tableau des répétitions
         st.subheader(f"Tableau du nombre des rapports d'intervention par {periode_selectionnee.lower()} (toutes les dates)")
@@ -134,37 +158,10 @@ if fichier_principal is not None:
         
         # Tirage au sort pour deux lignes par opérateur
         st.subheader("Tirage au sort de deux lignes par opérateur")
-        df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
+        df_filtre_tirage = df_principal[df_principal[col_prenom_nom].isin(operateurs_selectionnes)]
         
-        for operateur in operateurs_selectionnes:
-            st.write(f"Tirage pour {operateur}:")
-            df_operateur = df_filtre[df_filtre[col_prenom_nom] == operateur]
-            lignes_tirees = df_operateur.sample(n=min(2, len(df_operateur)))
-            if not lignes_tirees.empty:
-                # Vérification de la validité des URLs des photos
-                if pd.notna(lignes_tirees['Photo']).all() and pd.notna(lignes_tirees['Photo 2']).all():
-                    lignes_tirees['Photo'] = lignes_tirees['Photo'].apply(lambda x: f'<img src="{x}" width="100"/>')
-                    lignes_tirees['Photo 2'] = lignes_tirees['Photo 2'].apply(lambda x: f'<img src="{x}" width="100"/>')
-                    st.markdown(lignes_tirees.to_html(escape=False), unsafe_allow_html=True)
-                else:
-                    st.warning("Certaines photos ne sont pas valides ou manquantes.")
-            else:
-                st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
-            st.write("---")
-                            
-
-        # Téléchargement du fichier XLSX
-        st.subheader("Télécharger le tableau des rapports d'interventions")
-        xlsx_data = convert_df_to_xlsx(repetitions_tableau)
-        st.download_button(label="Télécharger en XLSX", data=xlsx_data, file_name="NombredesRapports.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        # Tirage aléatoire
+        tirages = df_filtre_tirage.groupby(col_prenom_nom).apply(lambda x: x.sample(n=2, random_state=42)).reset_index(drop=True)
         
-        # Téléchargement du fichier PDF
-        st.subheader("Télécharger le tableau des rapports d'interventions en PDF")
-        pdf_filename = "repetitions.pdf"
-        generate_pdf(repetitions_tableau, pdf_filename)
-        with open(pdf_filename, "rb") as f:
-            st.download_button(label="Télécharger en PDF", data=f, file_name=pdf_filename, mime="application/pdf")
-    
-    # Option pour afficher toutes les données
-    if st.checkbox("Afficher toutes les données"):
-        st.dataframe(df_principal)  # Parenthèse fermée correctement ici
+        st.write("Les résultats du tirage au sort :")
+        st.dataframe(tirages[['Prénom et nom', col_date, 'Repetitions']], use_container_width=True)
