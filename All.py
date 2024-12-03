@@ -161,6 +161,29 @@ if fichier_principal is not None:
         st.dataframe(repetitions_graph)
 
         # Tirage au sort de deux lignes du fichier
-        st.write("### Tirage au sort")
-        tirage_resultat = tirage_au_sort(df_principal, debut_periode, fin_periode)
-        st.write(tirage_resultat)
+        st.subheader("Tirage au sort de deux lignes par opérateur")
+        df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
+        for operateur in operateurs_selectionnes:
+            st.write(f"Tirage pour {operateur}:")
+            df_operateur = df_filtre[df_filtre[col_prenom_nom] == operateur]
+            lignes_tirees = df_operateur.sample(n=min(2, len(df_operateur)))
+            if not lignes_tirees.empty:
+                lignes_tirees['Photo'] = lignes_tirees['Photo'].apply(lambda x: f'<img src="{x}" width="100"/>')
+                lignes_tirees['Photo 2'] = lignes_tirees['Photo 2'].apply(lambda x: f'<img src="{x}" width="100"/>')
+                st.markdown(lignes_tirees.to_html(escape=False), unsafe_allow_html=True)
+            else:
+                st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
+            st.write("---")
+
+        st.subheader("Télécharger le tableau des rapports d'interventions")
+        xlsx_data = convert_df_to_xlsx(repetitions_tableau)
+        st.download_button(label="Télécharger en XLSX", data=xlsx_data, file_name="NombredesRapports.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+        st.subheader("Télécharger le tableau des rapports d'interventions en PDF")
+        pdf_filename = "repetitions.pdf"
+        generate_pdf(repetitions_tableau, pdf_filename)
+        with open(pdf_filename, "rb") as f:
+            st.download_button(label="Télécharger en PDF", data=f, file_name=pdf_filename, mime="application/pdf")
+
+    if st.checkbox("Afficher toutes les données"):
+        st.dataframe(df_principal)
