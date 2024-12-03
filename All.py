@@ -63,7 +63,7 @@ fichier_principal = st.file_uploader("Choisissez le fichier principal (donnee_Ae
 if fichier_principal is not None:
     df_principal = charger_donnees(fichier_principal)
     
-    col1, col2 = st.columns([2, 2])  # Modifier les tailles des colonnes pour donner plus d'espace aux graphiques
+    col1, col2 = st.columns([2, 3])  # Ajustez l'espacement des colonnes pour les placer côte à côte avec plus d'espace pour le tableau
     
     with col1:
         col_prenom_nom = df_principal.columns[4]
@@ -121,7 +121,8 @@ if fichier_principal is not None:
                                      y=df_operateur['Repetitions'],
                                      name=operateur,
                                      text=df_operateur['Repetitions'],
-                                     textposition='auto'))  # Afficher les valeurs sur les barres
+                                     textposition='inside',  # Afficher les valeurs à l'intérieur des barres
+                                     hovertemplate='%{y}'))  # Affichage des valeurs au survol
             
             fig.update_layout(title=f"Nombre de rapports d'intervention (du {debut_periode} au {fin_periode})",
                               xaxis_title=periode_selectionnee,
@@ -143,7 +144,8 @@ if fichier_principal is not None:
                                           mode='lines+markers', 
                                           name=operateur,
                                           text=df_operateur_moyenne['Repetitions'],
-                                          textposition='top center'))  # Afficher les valeurs des moyennes
+                                          textposition='top center',  # Afficher les valeurs au-dessus des points
+                                          hovertemplate='%{y}'))  # Affichage des valeurs au survol
             
             moyenne_totale = moyennes_par_periode['Repetitions'].mean()
             fig1.add_trace(go.Scatter(x=moyennes_par_periode[periode_selectionnee], 
