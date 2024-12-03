@@ -27,18 +27,22 @@ def style_moyennes(df, top_n=3, bottom_n=5):
     df_bottom = df.nsmallest(bottom_n, 'Repetitions')
 
     def apply_styles(row):
-        # Si la répétition est supérieure à la moyenne totale, colorier en vert
-        if row['Repetitions'] > moyenne_totale:
-            return ['background-color: lightgreen'] * len(row)  # Vert clair
         # Si la ligne est dans les top_n, colorier en or
-        elif row.name in df_top.index:
+        if row.name in df_top.index:
             return ['background-color: gold; color: black'] * len(row)  # Or avec texte noir
         # Si la ligne est dans les bottom_n, colorier en rouge
         elif row.name in df_bottom.index:
             return ['background-color: lightcoral; color: white'] * len(row)  # Rouge clair avec texte blanc
+        # Si la répétition est supérieure à la moyenne totale, colorier en vert
+        elif row['Repetitions'] > moyenne_totale:
+            return ['background-color: lightgreen'] * len(row)  # Vert clair
         # Si la ligne est inférieure à la moyenne totale mais pas dans les top ou bottom, colorier en rose poudré
         else:
             return ['background-color: lightpink'] * len(row)  # Rose poudré
+
+    # Appliquer les styles aux lignes du DataFrame
+    styled_df = df.style.apply(apply_styles, axis=1)
+    return styled_df
 
     # Appliquer les styles aux lignes du DataFrame
     styled_df = df.style.apply(apply_styles, axis=1)
