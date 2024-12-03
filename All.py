@@ -119,11 +119,12 @@ if fichier_principal is not None:
                 df_operateur = repetitions_graph[repetitions_graph[col_prenom_nom] == operateur]
                 fig.add_trace(go.Bar(x=df_operateur[periode_selectionnee],
                                      y=df_operateur['Repetitions'],
+                                     fig.update_traces(texttemplate='%{y}', textposition='outside')
                                      name=operateur))
             
             fig.update_layout(title=f"Nombre de rapports d'intervention (du {debut_periode} au {fin_periode})",
                               xaxis_title=periode_selectionnee,
-                              yaxis_title="Répetitions",
+                              yaxis_title="Nbr de rapport d'intervention",
                               template="plotly_dark")
             st.plotly_chart(fig)
 
@@ -150,7 +151,7 @@ if fichier_principal is not None:
 
             fig1.update_layout(title=f"Moyennes par opérateur (du {debut_periode} au {fin_periode})",
                                xaxis_title=periode_selectionnee,
-                               yaxis_title="Moyenne des répétitions",
+                               yaxis_title="Moyenne des rapports d'interventions",
                                template="plotly_dark")
             st.plotly_chart(fig1)
 
