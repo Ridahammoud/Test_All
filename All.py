@@ -133,7 +133,10 @@ if fichier_principal is not None:
         # Calcul des moyennes par opérateur et par période
         moyennes_par_periode = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom])['Repetitions'].mean().reset_index()
 
-        with col1:
+        # Utilisation de st.columns pour avoir le graphique et le tableau côte à côte
+        col3, col4 = st.columns([2, 3])  # La colonne de droite aura plus d'espace pour le tableau
+        
+        with col3:
             # Graphique des moyennes par opérateur
             fig1 = go.Figure()
 
@@ -160,31 +163,17 @@ if fichier_principal is not None:
                                template="plotly_dark")
             st.plotly_chart(fig1)
 
+        with col4:
             # Affichage du tableau des moyennes par opérateur
             st.write("### Tableau des Moyennes par période et par opérateur")
             styled_df = style_moyennes(moyennes_par_periode)
             st.dataframe(styled_df, use_container_width=True)
 
         # Affichage du tableau des répétitions
-        st.write("### Tableau des répétitions par opérateur et période")
-        st.dataframe(repetitions_graph)
-
-        # Tirage au sort de deux lignes du fichier
-        st.subheader("Tirage au sort de deux lignes par opérateur")
-        df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
-        for operateur in operateurs_selectionnes:
-            st.write(f"Tirage pour {operateur}:")
-            df_operateur = df_filtre[df_filtre[col_prenom_nom] == operateur]
-            lignes_tirees = df_operateur.sample(n=min(2, len(df_operateur)))
-            if not lignes_tirees.empty:
-                lignes_tirees['Photo'] = lignes_tirees['Photo'].apply(lambda x: f'<img src="{x}" width="100"/>')
-                lignes_tirees['Photo 2'] = lignes_tirees['Photo 2'].apply(lambda x: f'<img src="{x}" width="100"/>')
-                st.markdown(lignes_tirees.to_html(escape=False), unsafe_allow_html=True)
-            else:
-                st.write("Aucune ligne disponible pour ce tirage.")
-            
-            st.write("---")
-
+        st.write("### Tableau des répétitions par période et par opérateur")
+        st.dataframe(repetitions_tableau, use_container_width=True)
+        
+        # Téléchargement des rapports
         st.subheader("Télécharger le tableau des rapports d'interventions")
         xlsx_data = convert_df_to_xlsx(repetitions_tableau)
         st.download_button(label="Télécharger en XLSX", data=xlsx_data, file_name="NombredesRapports.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
