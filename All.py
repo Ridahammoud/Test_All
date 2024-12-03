@@ -151,7 +151,6 @@ if fichier_principal is not None:
         
         with col3:
             # Graphique des moyennes par opérateur avec améliorations visuelles
-            # S'assurer que le code est à l'intérieur du bloc col2
             fig1 = go.Figure()
 
             # Couleurs personnalisées pour chaque opérateur
@@ -159,64 +158,21 @@ if fichier_principal is not None:
 
             for i, operateur in enumerate(operateurs_selectionnes):
                 df_operateur_moyenne = moyennes_par_periode[moyennes_par_periode[col_prenom_nom] == operateur]
+                fig1.add_trace(go.Scatter(x=df_operateur_moyenne[periode_selectionnee],
+                                          y=df_operateur_moyenne['Repetitions'],
+                                          mode='lines+markers',
+                                          name=operateur,
+                                          line=dict(color=colors[i % len(colors)]),
+                                          text=df_operateur_moyenne['Repetitions'],
+                                          textposition='top center'))
 
-               fig1.add_trace(go.Scatter(
-                   x=df_operateur_moyenne[periode_selectionnee], 
-                   y=df_operateur_moyenne['Repetitions'], 
-                   mode='lines+markers', 
-                   name=operateur,
-                   marker=dict(color=colors[i % len(colors)], size=8),  # Couleur et taille des points
-                   line=dict(width=3),  # Largeur de la ligne
-               ))
+            fig1.update_layout(title=f"Moyenne des répétitions par opérateur ({periode_selectionnee})",
+                               xaxis_title=periode_selectionnee,
+                               yaxis_title="Moyenne des répétitions",
+                               template="plotly_dark")
 
-              # Ajouter une ligne de moyenne totale
-            moyenne_totale = moyennes_par_periode['Repetitions'].mean()
-            fig1.add_trace(go.Scatter(
-                 x=moyennes_par_periode[periode_selectionnee], 
-                 y=[moyenne_totale] * len(moyennes_par_periode), 
-                 mode='lines', 
-                 name="Moyenne Totale", 
-                 line=dict(dash='dash', color='red', width=2)
-            ))
+            st.plotly_chart(fig1)
 
-              # Ajouter les valeurs sur les points
-           for operateur in operateurs_selectionnes:
-               df_operateur_moyenne = moyennes_par_periode[moyennes_par_periode[col_prenom_nom] == operateur]
-               for i, row in df_operateur_moyenne.iterrows():
-                    fig1.add_annotation(
-                         x=row[periode_selectionnee], 
-                         y=row['Repetitions'], 
-                         text=str(round(row['Repetitions'], 2)), 
-                         showarrow=True, 
-                         arrowhead=2, 
-                         arrowsize=1, 
-                         arrowcolor='black',
-                         font=dict(size=12, color='black'),
-                         bgcolor='white',
-                         opacity=0.7
-                    )
-
-            # Améliorer les titres et axes
-         fig1.update_layout(
-              title=f"Moyennes par opérateur (du {debut_periode} au {fin_periode})",
-              xaxis_title=periode_selectionnee,
-              yaxis_title="Moyenne des répétitions",
-              template="plotly_dark",  # Thème sombre pour un meilleur contraste
-              title_font=dict(size=18, color="white"),
-              xaxis=dict(showgrid=False, color="white"),
-              yaxis=dict(showgrid=True, gridcolor='gray'),
-              plot_bgcolor='black',  # Fond noir pour le graphique
-              paper_bgcolor='black',
-              legend=dict(
-                  title='Opérateurs',
-                  font=dict(size=12, color='white'),
-                  bgcolor='rgba(0,0,0,0.5)',  # Fond semi-transparent pour la légende
-                        ),
-            )
-
-             # Affichage du graphique
-         st.plotly_chart(fig1, use_container_width=True)
-    
         with col4:
             # Affichage du tableau des moyennes par opérateur
             st.write("### Tableau des Moyennes par période et par opérateur")
