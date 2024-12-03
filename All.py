@@ -1,11 +1,11 @@
 import pandas as pd
 import streamlit as st
-import plotly.express as px
 import plotly.graph_objects as go
 from io import BytesIO
 import xlsxwriter
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+import random
 
 # Fonction de chargement des données
 @st.cache_data
@@ -50,6 +50,11 @@ def style_moyennes(df, top_n=5, bottom_n=5):
     styled_df = df.style.apply(apply_styles, axis=1)
     return styled_df
 
+# Fonction pour le tirage au sort
+def tirage_au_sort(df, debut_periode, fin_periode):
+    df_filtre = df[(df['Date'] >= debut_periode) & (df['Date'] <= fin_periode)]
+    return df_filtre.sample(n=2)
+
 # Configuration de la page Streamlit
 st.set_page_config(page_title="Analyse des Interventions", page_icon="📊", layout="wide")
 
@@ -61,6 +66,7 @@ fichier_principal = st.file_uploader("Choisissez le fichier principal (donnee_Ae
 if fichier_principal is not None:
     df_principal = charger_donnees(fichier_principal)
     
+    # Configuration des colonnes et de la disposition du layout
     col1, col2 = st.columns([1, 2])
     
     with col1:
@@ -123,59 +129,57 @@ if fichier_principal is not None:
         if len(repetitions_graph) > 100:
             repetitions_graph = repetitions_graph.sample(n=100)
         
-        # Calcul des répétitions pour le tableau (toutes les dates)
-        repetitions_tableau = df_principal[df_principal[col_prenom_nom].isin(operateurs_selectionnes)].groupby(groupby_cols).size().reset_index(name='Repetitions')
-        
-        # Affichage du graphique avec les valeurs des répétitions et couleurs par opérateur
+        # Calcul des moyennes par opérateur et par période
+        moyennes_par_periode = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom])['Repetitions'].mean().reset_index()
+
+        # Graphique principal (à gauche)
         with col1:
-            moyenne_totale = repetitions_graph['Repetitions'].mean()
-            
-            # Créer le graphique
-            fig = go.Figure()
+            fig1 = go.Figure()
+
+            # Courbe des répétitions par période et opérateur
+            for operateur in operateurs_selectionnes:
+                df_operateur = repetitions_graph[repetitions_graph[col_prenom_nom] == operateur]
+                fig1.add_trace(go.Scatter(x=df_operateur[periode_selectionnee], 
+                                          y=df_operateur['Repetitions'], 
+                                          mode='lines+markers', 
+                                          name=operateur))
+
+            fig1.update_layout(title=f"Nombre de répétitions par période (du {debut_periode} au {fin_periode})",
+                               xaxis_title=periode_selectionnee,
+                               yaxis_title="Répetitions",
+                               template="plotly_dark")
+            st.plotly_chart(fig1)
+
+        # Graphique des moyennes par opérateur (à droite)
+        with col2:
+            fig2 = go.Figure()
 
             # Courbe des moyennes par période et opérateur
             for operateur in operateurs_selectionnes:
-                df_operateur = repetitions_graph[repetitions_graph[col_prenom_nom] == operateur]
-                fig.add_trace(go.Scatter(x=df_operateur[periode_selectionnee], 
-                                         y=df_operateur['Repetitions'], 
-                                         mode='lines+markers', 
-                                         name=operateur))
+                df_operateur_moyenne = moyennes_par_periode[moyennes_par_periode[col_prenom_nom] == operateur]
+                fig2.add_trace(go.Scatter(x=df_operateur_moyenne[periode_selectionnee], 
+                                          y=df_operateur_moyenne['Repetitions'], 
+                                          mode='lines+markers', 
+                                          name=operateur))
 
-            # Ajouter la ligne de la moyenne totale
-            fig.add_trace(go.Scatter(x=repetitions_graph[periode_selectionnee], 
-                                     y=[moyenne_totale] * len(repetitions_graph), 
-                                     mode='lines', 
-                                     name="Moyenne Totale", 
-                                     line=dict(dash='dash', color='red')))
-
-            fig.update_layout(title=f"Moyennes par période et opérateur (du {debut_periode} au {fin_periode})",
-                              xaxis_title=periode_selectionnee,
-                              yaxis_title="Répetitions",
-                              template="plotly_dark")
-            st.plotly_chart(fig)
-
-            st.write(f"### Moyenne totale par période : {moyenne_totale:.2f}")
-
-            # Calcul de la moyenne par période et par opérateur
-            moyenne_par_operateur = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom])['Repetitions'].mean().reset_index()
-            st.write("### Moyenne par période et par opérateur :")
+            moyenne_totale = moyennes_par_periode['Repetitions'].mean()
+            fig2.add_trace(go.Scatter(x=moyennes_par_periode[periode_selectionnee], 
+                                      y=[moyenne_totale] * len(moyennes_par_periode), 
+                                      mode='lines', 
+                                      name="Moyenne Totale", 
+                                      line=dict(dash='dash', color='red')))
             
-            # Appliquer le style
-            styled_df = style_moyennes(moyenne_par_operateur)
-            st.dataframe(styled_df, use_container_width=True)
+            fig2.update_layout(title=f"Moyennes par opérateur (du {debut_periode} au {fin_periode})",
+                               xaxis_title=periode_selectionnee,
+                               yaxis_title="Moyenne des répétitions",
+                               template="plotly_dark")
+            st.plotly_chart(fig2)
 
         # Affichage du tableau des répétitions
-        st.subheader(f"Tableau du nombre des rapports d'intervention par {periode_selectionnee.lower()} (toutes les dates)")
-        colonnes_affichage = [col_prenom_nom, periode_selectionnee, 'Repetitions'] if periode_selectionnee != "Total" else [col_prenom_nom, 'Repetitions']
-        tableau_affichage = repetitions_tableau[colonnes_affichage]
-        
-        st.dataframe(tableau_affichage, use_container_width=True)
-        
-        # Télécharger les fichiers
-        xlsx_data = convert_df_to_xlsx(repetitions_tableau)
-        st.download_button(label="Télécharger en XLSX", data=xlsx_data, file_name="NombredesRapports.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-        
-        pdf_filename = "repetitions.pdf"
-        generate_pdf(repetitions_tableau, pdf_filename)
-        with open(pdf_filename, "rb") as f:
-            st.download_button(label="Télécharger en PDF", data=f, file_name=pdf_filename, mime="application/pdf")
+        st.write("### Tableau des répétitions par opérateur et période")
+        st.dataframe(repetitions_graph)
+
+        # Tirage au sort de deux lignes du fichier
+        st.write("### Tirage au sort")
+        tirage_resultat = tirage_au_sort(df_principal, debut_periode, fin_periode)
+        st.write(tirage_resultat)
