@@ -18,20 +18,29 @@ def convert_df_to_xlsx(df):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
     return output.getvalue()
 
-# Appliquer des styles pour les top n et bottom n
-def style_moyennes(df, top_n=5, bottom_n=5):
-    # Appliquer un style pour les top n et bottom n
+def style_moyennes(df, top_n=3, bottom_n=5):
+    # Calcul de la moyenne totale des répétitions
+    moyenne_totale = df['Repetitions'].mean()
+
+    # Sélectionner les top_n (3) et bottom_n (5) en fonction de la colonne 'Repetitions'
     df_top = df.nlargest(top_n, 'Repetitions')
     df_bottom = df.nsmallest(bottom_n, 'Repetitions')
 
     def apply_styles(row):
-        if row.name in df_top.index:
-            return ['background-color: lightblue'] * len(row)  # Blue color for top
+        # Si la répétition est supérieure à la moyenne totale, colorier en vert
+        if row['Repetitions'] > moyenne_totale:
+            return ['background-color: lightgreen'] * len(row)  # Vert clair
+        # Si la ligne est dans les top_n, colorier en or
+        elif row.name in df_top.index:
+            return ['background-color: gold; color: black'] * len(row)  # Or avec texte noir
+        # Si la ligne est dans les bottom_n, colorier en rouge
         elif row.name in df_bottom.index:
-            return ['background-color: lightcoral; color: white'] * len(row)  # Red color for bottom
+            return ['background-color: lightcoral; color: white'] * len(row)  # Rouge clair avec texte blanc
+        # Si la ligne est inférieure à la moyenne totale mais pas dans les top ou bottom, colorier en rose poudré
         else:
-            return [''] * len(row)  # No style for others
+            return ['background-color: lightpink'] * len(row)  # Rose poudré
 
+    # Appliquer les styles aux lignes du DataFrame
     styled_df = df.style.apply(apply_styles, axis=1)
     return styled_df
 
@@ -159,7 +168,7 @@ if fichier_principal is not None:
 
             fig1.update_layout(title=f"Moyennes par opérateur (du {debut_periode} au {fin_periode})",
                                xaxis_title=periode_selectionnee,
-                               yaxis_title="Moyenne des répétitions",
+                               yaxis_title="Moyenne des rapports d'interventions",
                                template="plotly_dark")
             st.plotly_chart(fig1)
 
@@ -170,7 +179,7 @@ if fichier_principal is not None:
             st.dataframe(styled_df, use_container_width=True)
 
         # Affichage du tableau des répétitions
-        st.write("### Tableau des répétitions par période et par opérateur")
+        st.write("### Tableau des rapports d'intervention par période et par opérateur")
         st.dataframe(repetitions_tableau, use_container_width=True)
 
         st.subheader("Tirage au sort de deux lignes par opérateur")
