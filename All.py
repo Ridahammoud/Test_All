@@ -1,12 +1,10 @@
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
-import plotly.express as px
 from io import BytesIO
 import xlsxwriter
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-import random
 
 # Fonction de chargement des données
 @st.cache_data
@@ -20,6 +18,7 @@ def convert_df_to_xlsx(df):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
     return output.getvalue()
 
+# Appliquer des styles pour les top n et bottom n
 def style_moyennes(df, top_n=5, bottom_n=5):
     # Appliquer un style pour les top n et bottom n
     df_top = df.nlargest(top_n, 'Repetitions')
@@ -49,23 +48,6 @@ def generate_pdf(df, filename="tableau.pdf"):
         y_position -= 20
     
     c.save()
-
-# Calcul des moyennes et ajout des styles
-def style_moyennes(df, top_n=5, bottom_n=5):
-    # Appliquer un style pour les top n et bottom n
-    df_top = df.nlargest(top_n, 'Repetitions')
-    df_bottom = df.nsmallest(bottom_n, 'Repetitions')
-
-    def apply_styles(row):
-        if row.name in df_top.index:
-            return ['background-color: lightblue'] * len(row)  # Blue color for top
-        elif row.name in df_bottom.index:
-            return ['background-color: lightcoral; color: white'] * len(row)  # Red color for bottom
-        else:
-            return [''] * len(row)  # No style for others
-
-    styled_df = df.style.apply(apply_styles, axis=1)
-    return styled_df
 
 # Fonction pour le tirage au sort
 def tirage_au_sort(df, debut_periode, fin_periode):
@@ -171,11 +153,12 @@ if fichier_principal is not None:
                                yaxis_title="Moyenne des répétitions",
                                template="plotly_dark")
             st.plotly_chart(fig1)
-        with col2:
-            # Appliquer le style
-            styled_df = style_moyennes(moyenne_par_operateur)
+
+            # Affichage du tableau des moyennes par opérateur
+            st.write("### Tableau des Moyennes par période et par opérateur")
+            styled_df = style_moyennes(moyennes_par_periode)
             st.dataframe(styled_df, use_container_width=True)
-            
+
         # Affichage du tableau des répétitions
         st.write("### Tableau des répétitions par opérateur et période")
         st.dataframe(repetitions_graph)
@@ -190,20 +173,6 @@ if fichier_principal is not None:
             if not lignes_tirees.empty:
                 lignes_tirees['Photo'] = lignes_tirees['Photo'].apply(lambda x: f'<img src="{x}" width="100"/>')
                 lignes_tirees['Photo 2'] = lignes_tirees['Photo 2'].apply(lambda x: f'<img src="{x}" width="100"/>')
-                st.markdown(lignes_tirees.to_html(escape=False), unsafe_allow_html=True)
+                st.write(lignes_tirees.to_html(escape=False), unsafe_allow_html=True)
             else:
-                st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
-            st.write("---")
-
-        st.subheader("Télécharger le tableau des rapports d'interventions")
-        xlsx_data = convert_df_to_xlsx(repetitions_tableau)
-        st.download_button(label="Télécharger en XLSX", data=xlsx_data, file_name="NombredesRapports.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-
-        st.subheader("Télécharger le tableau des rapports d'interventions en PDF")
-        pdf_filename = "repetitions.pdf"
-        generate_pdf(repetitions_tableau, pdf_filename)
-        with open(pdf_filename, "rb") as f:
-            st.download_button(label="Télécharger en PDF", data=f, file_name=pdf_filename, mime="application/pdf")
-
-    if st.checkbox("Afficher toutes les données"):
-        st.dataframe(df_principal)
+                st.write("Aucune ligne disponible pour ce tirage.")
