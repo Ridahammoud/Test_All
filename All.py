@@ -5,6 +5,7 @@ from io import BytesIO
 import xlsxwriter
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+import plotly.express as px  # Assurez-vous que cette ligne est présente
 
 # Fonction de chargement des données
 @st.cache_data
@@ -39,10 +40,6 @@ def style_moyennes(df, top_n=3, bottom_n=5):
         # Si la ligne est inférieure à la moyenne totale mais pas dans les top ou bottom, colorier en rose poudré
         else:
             return ['background-color: lightpink'] * len(row)  # Rose poudré
-
-    # Appliquer les styles aux lignes du DataFrame
-    styled_df = df.style.apply(apply_styles, axis=1)
-    return styled_df
 
     # Appliquer les styles aux lignes du DataFrame
     styled_df = df.style.apply(apply_styles, axis=1)
@@ -172,7 +169,7 @@ if fichier_principal is not None:
                                template="plotly_dark")
 
             st.plotly_chart(fig1)
-
+            
         with col4:
             # Affichage du tableau des moyennes par opérateur
             st.write("### Tableau des Moyennes par période et par opérateur")
