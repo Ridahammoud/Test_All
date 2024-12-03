@@ -174,7 +174,7 @@ if fichier_principal is not None:
         st.dataframe(repetitions_tableau, use_container_width=True)
 
         st.subheader("Tirage au sort de deux lignes par opérateur")
-         df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
+        df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
         for operateur in operateurs_selectionnes:
             st.write(f"Tirage pour {operateur}:")
             df_operateur = df_filtre[df_filtre[col_prenom_nom] == operateur]
