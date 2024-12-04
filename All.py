@@ -142,6 +142,7 @@ if fichier_principal is not None:
 
         # Calcul des moyennes par opérateur et par période
         moyennes_par_periode = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom])['Repetitions'].mean().reset_index()
+        moyennes_par_operateur = moyennes_par_periode.groupby(['Prénom et nom'])['Repetitions'].mean().reset_index()
 
         # Utilisation de st.columns pour avoir le graphique et le tableau côte à côte
         col3, col4 = st.columns([2, 3])  # La colonne de droite aura plus d'espace pour le tableau
@@ -173,7 +174,7 @@ if fichier_principal is not None:
         with col4:
             # Affichage du tableau des moyennes par opérateur
             st.write("### Tableau des Moyennes par période et par opérateur")
-            styled_df = style_moyennes(moyennes_par_periode)
+            styled_df = style_moyennes(moyennes_par_operateur)
             st.dataframe(styled_df, use_container_width=True)
 
         # Affichage du tableau des répétitions
