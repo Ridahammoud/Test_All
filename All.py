@@ -163,10 +163,22 @@ if fichier_principal is not None:
                                           line=dict(color=colors[i % len(colors)]),
                                           text=df_operateur_moyenne['Repetitions'],
                                           textposition='top center'))
+                # Calcul de la moyenne globale
+                moyenne_globale = moyennes_par_periode['Repetitions'].mean()
 
-            fig1.update_layout(title=f"Moyenne des répétitions par opérateur ({periode_selectionnee})",
+                # Ajout de la ligne de moyenne globale
+                fig1.add_trace(go.Scatter(
+                                          x=[moyennes_par_periode[periode_selectionnee].min(), moyennes_par_periode[periode_selectionnee].max()],
+                                          y=[moyenne_globale, moyenne_globale],
+                                          mode='lines',
+                                          name='Moyenne globale',
+                                          line=dict(color='red', dash='dash'),
+                                          hoverinfo='y'
+                              ))
+
+            fig1.update_layout(title=f"Moyenne des rapports d'interventions par opérateur ({periode_selectionnee})",
                                xaxis_title=periode_selectionnee,
-                               yaxis_title="Moyenne des répétitions",
+                               yaxis_title="Moyenne des rapports d'interventions",
                                template="plotly_dark")
 
             st.plotly_chart(fig1)
