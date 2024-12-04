@@ -192,20 +192,22 @@ if fichier_principal is not None:
         # Affichage du tableau des répétitions
         st.write("### Tableau des rapports d'intervention par période et par opérateur")
         st.dataframe(repetitions_tableau, use_container_width=True)
-
-        st.subheader("Tirage au sort de deux lignes par opérateur")
-        df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
-        for operateur in operateurs_selectionnes:
-            st.write(f"Tirage pour {operateur}:")
-            df_operateur = df_filtre[df_filtre[col_prenom_nom] == operateur]
-            lignes_tirees = df_operateur.sample(n=min(2, len(df_operateur)))
-            if not lignes_tirees.empty:
-                lignes_tirees['Photo'] = lignes_tirees['Photo'].apply(lambda x: f'<img src="{x}" width="100"/>')
-                lignes_tirees['Photo 2'] = lignes_tirees['Photo 2'].apply(lambda x: f'<img src="{x}" width="100"/>')
-                st.markdown(lignes_tirees.to_html(escape=False), unsafe_allow_html=True)
-            else:
-                st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
-            st.write("---")
+            
+            st.subheader("Tirage au sort de deux lignes par opérateur")
+            df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
+            for operateur in operateurs_selectionnes:
+                st.write(f"Tirage pour {operateur}:")
+                df_operateur = df_filtre[df_filtre[col_prenom_nom] == operateur]
+                lignes_tirees = df_operateur.sample(n=min(2, len(df_operateur)))
+                if not lignes_tirees.empty:
+                    # Sélectionner les colonnes à partir de la 4ème
+                    lignes_tirees_affichage = lignes_tirees.iloc[:, 3:]
+                    # Convertir la colonne 'Photo' en balises HTML d'image
+                    lignes_tirees_affichage['Photo'] = lignes_tirees_affichage['Photo'].apply(lambda x: f'<img src="{x}" width="100"/>')
+                    st.markdown(lignes_tirees_affichage.to_html(escape=False), unsafe_allow_html=True)
+                else:
+                    st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
+                st.write("---")
 
         
         # Téléchargement des rapports
