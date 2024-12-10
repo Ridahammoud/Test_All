@@ -111,7 +111,7 @@ if fichier_principal is not None:
 
         with col2:
             # graphique principal
-            fig = px.bar(repetitions_graph = df_graph.groupby(groupby_cols).size().reset_index(name='Nombre de Rapports d\'intervention')
+            fig = px.bar(repetitions_graph = df_graph.groupby(groupby_cols).size().reset_index(name='Nombre de Rapports d\'intervention'))
             for operateur in operateurs_selectionnes:
                 df_operateur = repetitions_graph[repetitions_graph[col_prenom_nom] == operateur]
                 fig.add_trace(go.Bar(x=df_operateur[periode_selectionnee],
