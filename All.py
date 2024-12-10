@@ -121,11 +121,11 @@ if fichier_principal is not None:
                                      textposition='inside',
                                      hovertemplate='%{y}'))
 
-            fig.update_layout(title=f"Nombre de rapports d'intervention (du {debut_periode} au {fin_periode})",
+                fig.update_layout(title=f"Nombre de rapports d'intervention (du {debut_periode} au {fin_periode})",
                               xaxis_title=periode_selectionnee,
                               yaxis_title="Répetitions",
                               template="plotly_dark")
-                         st.plotly_chart(fig)
+                st.plotly_chart(fig)
             
         # Calcul des moyennes par opérateur et par période
         moyennes_par_periode = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom])['Repetitions'].mean().reset_index()
