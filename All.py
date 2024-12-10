@@ -136,6 +136,16 @@ if fichier_principal is not None:
         
         styled_df = style_moyennes(repetitions_graph)
         st.dataframe(styled_df, use_container_width=True)
+
+
+
+                        # Affichage des tableaux
+        st.subheader("Tirage au sort de deux lignes par opérateur")
+        df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
+        for operateur in operateurs_selectionnes:
+            st.write(f"### Tirage pour {operateur}:")
+            df_operateur = df_filtre[df_filtre[col_prenom_nom] == operateur]
+            lignes_tirees = df_operateur.sample(n=min(3, len(df_operateur)))
             if not lignes_tirees.empty:
                 for _, ligne in lignes_tirees.iterrows():
                     col_info, col_photo = st.columns([3, 1])
