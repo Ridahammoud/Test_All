@@ -43,23 +43,6 @@ def style_moyennes(df, top_n=3, bottom_n=5):
     styled_df = df.style.apply(apply_styles, axis=1)
     return styled_df
 
-# Fonction pour générer un PDF
-def generate_pdf(df):
-    buffer = BytesIO()
-    c = canvas.Canvas(buffer, pagesize=letter)
-    width, height = letter
-    c.drawString(30, height - 40, "Tableau des répétitions des opérateurs")
-
-    y_position = height - 60
-    for i, row in df.iterrows():
-        text = f"{row['Prénom et nom']} : {row['Repetitions']}"
-        c.drawString(30, y_position, text)
-        y_position -= 20
-
-    c.save()
-    buffer.seek(0)
-    return buffer.getvalue()
-
 # Fonction pour le tirage au sort
 def tirage_au_sort(df, col_prenom_nom, col_date, debut_periode, fin_periode):
     df_filtre = df[(df[col_date].dt.date >= debut_periode) & (df[col_date].dt.date <= fin_periode)]
@@ -71,6 +54,8 @@ def tirage_au_sort(df, col_prenom_nom, col_date, debut_periode, fin_periode):
             resultats.append((operateur, lignes_tirees))
     return resultats
 
+
+
 # Configuration de la page Streamlit
 st.set_page_config(page_title="Analyse des Interventions", page_icon="📊", layout="wide")
 st.title("📊 Analyse des interventions des opérateurs")
@@ -80,13 +65,16 @@ fichier_principal = st.file_uploader("Choisissez le fichier principal (donnee_Ae
 if fichier_principal is not None:
     df_principal = charger_donnees(fichier_principal)
 
-    # Validation des colonnes requises
-    required_columns = ["Prénom et nom", "Date et Heure début d'intervention", "Équipement", "Localisation", "Technique", "Opérationnel", "Photo"]
-    missing_columns = [col for col in required_columns if col not in df_principal.columns]
-    if missing_columns:
-        st.error(f"Les colonnes suivantes sont manquantes : {', '.join(missing_columns)}")
-        st.stop()
+    col1, col2 = st.columns([2, 3])
 
+    with col1:
+        # Validation des colonnes requises
+        required_columns = ["Prénom et nom", "Date et Heure début d'intervention", "Équipement", "Localisation", "Technique", "Opérationnel", "Photo"]
+        missing_columns = [col for col in required_columns if col not in df_principal.columns]
+        if missing_columns:
+            st.error(f"Les colonnes suivantes sont manquantes : {', '.join(missing_columns)}")
+            st.stop()
+        
     # Conversion des dates
     col_prenom_nom = "Prénom et nom"
     col_date = "Date et Heure début d'intervention"
@@ -121,25 +109,85 @@ if fichier_principal is not None:
 
         repetitions_graph = df_graph.groupby(groupby_cols).size().reset_index(name='Repetitions')
 
-        # Graphique principal
-        fig = px.bar(repetitions_graph, x=periode_selectionnee, y='Repetitions', color=col_prenom_nom, barmode='group')
-        st.plotly_chart(fig)
+        with col2:
+            # graphique principal
+            fig = px.bar(repetitions_graph = df_graph.groupby(groupby_cols).size().reset_index(name='Nombre de Rapports d\'intervention')
+            for operateur in operateurs_selectionnes:
+                df_operateur = repetitions_graph[repetitions_graph[col_prenom_nom] == operateur]
+                fig.add_trace(go.Bar(x=df_operateur[periode_selectionnee],
+                                     y=df_operateur['Repetitions'],
+                                     name=operateur,
+                                     text=df_operateur['Repetitions'],
+                                     textposition='inside',
+                                     hovertemplate='%{y}'))
 
-        # Tableau avec légende
-        st.markdown("""
-        #### Légende :
-        - **Top 3** : Jaune
-        - **Supérieur à la moyenne** : Vert
-        - **Inférieur à la moyenne** : Rose
-        - **Très inférieur à la moyenne 5** : Rouge
-        """)
-        
-        styled_df = style_moyennes(repetitions_graph)
-        st.dataframe(styled_df, use_container_width=True)
+            fig.update_layout(title=f"Nombre de rapports d'intervention (du {debut_periode} au {fin_periode})",
+                              xaxis_title=periode_selectionnee,
+                              yaxis_title="Répetitions",
+                              template="plotly_dark")
+                         st.plotly_chart(fig)
+            
+        # Calcul des moyennes par opérateur et par période
+        moyennes_par_periode = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom])['Repetitions'].mean().reset_index()
+        moyennes_par_operateur = moyennes_par_periode.groupby(['Prénom et nom'])['Repetitions'].mean().reset_index()
+        moyenne_globale = moyennes_par_periode['Repetitions'].mean()
 
+                # Graphique des moyennes avec moyenne globale
+        fig1 = go.Figure()
 
+        colors = px.colors.qualitative.Set1
 
-                        # Affichage des tableaux
+        for i, operateur in enumerate(operateurs_selectionnes):
+            df_operateur_moyenne = moyennes_par_periode[moyennes_par_periode[col_prenom_nom] == operateur]
+            fig1.add_trace(go.Scatter(
+                x=df_operateur_moyenne[periode_selectionnee],
+                y=df_operateur_moyenne['Repetitions'],
+                mode='lines+markers',
+                name=operateur,
+                line=dict(color=colors[i % len(colors)]),
+                text=df_operateur_moyenne['Repetitions'],
+                textposition='top center'
+            ))
+
+        # Ligne de moyenne globale
+        fig1.add_trace(go.Scatter(
+            x=moyennes_par_periode[periode_selectionnee].unique(),
+            y=[moyenne_globale] * len(moyennes_par_periode[periode_selectionnee].unique()),
+            mode='lines',
+            name='Moyenne Globale',
+            line=dict(color='red', dash='dash'),
+            hoverinfo='skip'
+        ))
+
+        fig1.update_layout(
+            title=f"Moyenne des rapports d'interventions par opérateur ({periode_selectionnee}) avec ligne de moyenne globale",
+            xaxis_title=periode_selectionnee,
+            yaxis_title="Moyenne des rapports d'interventions",
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig1)
+
+        # Affichage des tableaux
+        col3, col4 = st.columns([2, 3])
+        with col3:
+            st.write("### Tableau des Moyennes par période et par opérateur")
+            styled_df = style_moyennes(moyennes_par_operateur)
+            st.dataframe(styled_df, use_container_width=True)
+            st.markdown("""
+            #### Légende :
+            - <span style="display: inline-block; width: 12px; height: 12px; background-color: gold; margin-right: 5px; border: 1px solid black;"></span> **Top 3**
+            - <span style="display: inline-block; width: 12px; height: 12px; background-color: lightgreen; margin-right: 5px; border: 1px solid black;"></span> **Supérieur à la moyenne**
+            - <span style="display: inline-block; width: 12px; height: 12px; background-color: lightpink; margin-right: 5px; border: 1px solid black;"></span> **Inférieur à la moyenne**
+            - <span style="display: inline-block; width: 12px; height: 12px; background-color: lightcoral; margin-right: 5px; border: 1px solid black;"></span> **Flop 5**
+            """, unsafe_allow_html=True)
+            styled_df = style_moyennes(repetitions_graph)
+            st.dataframe(styled_df, use_container_width=True)
+        with col4:
+            st.write("### Tableau des rapports d'intervention par période et par opérateur")
+            st.dataframe(repetitions_tableau, use_container_width=True)
+
+# Tirage au sort
         st.subheader("Tirage au sort de deux lignes par opérateur")
         df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
         for operateur in operateurs_selectionnes:
