@@ -85,7 +85,6 @@ if fichier_principal is not None:
 
         date_min = df_principal[col_date].min()
         date_max = df_principal[col_date].max()
-
         if pd.isna(date_min) or pd.isna(date_max):
             st.warning("Certaines dates dans le fichier sont invalides. Elles ont été ignorées.")
             date_min = date_max = None
@@ -93,15 +92,13 @@ if fichier_principal is not None:
         debut_periode = st.date_input("Début de la période", min_value=date_min, max_value=date_max, value=date_min)
         fin_periode = st.date_input("Fin de la période", min_value=debut_periode, max_value=date_max, value=date_max)
 
-    if st.button("Analyser"):
-        df_principal = df_principal.dropna(subset=[col_date])
-
-        df_principal['Jour'] = df_principal[col_date].dt.date
-        df_principal['Semaine'] = df_principal[col_date].dt.to_period('W').astype(str)
-        df_principal['Mois'] = df_principal[col_date].dt.to_period('M').astype(str)
-        df_principal['Trimestre'] = df_principal[col_date].dt.to_period('Q').astype(str)
-        df_principal['Année'] = df_principal[col_date].dt.year
-
+        if st.button("Analyser"):
+            df_principal = df_principal.dropna(subset=[col_date])
+            df_principal['Jour'] = df_principal[col_date].dt.date
+            df_principal['Semaine'] = df_principal[col_date].dt.to_period('W').astype(str)
+            df_principal['Mois'] = df_principal[col_date].dt.to_period('M').astype(str)
+            df_principal['Trimestre'] = df_principal[col_date].dt.to_period('Q').astype(str)
+            df_principal['Année'] = df_principal[col_date].dt.year
         df_graph = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
 
         groupby_cols = [col_prenom_nom]
