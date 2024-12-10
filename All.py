@@ -12,12 +12,16 @@ import plotly.express as px
 def charger_donnees(fichier):
     return pd.read_excel(fichier)
 
-# Fonction pour convertir un dataframe en fichier XLSX
-def convert_df_to_xlsx(df):
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='Sheet1')
-    return output.getvalue()
+
+# Ajouter une colonne pour les équipes
+def assign_team(name):
+    if name in team_1_Christian:
+        return "Team 1 Christian"
+    elif name in team_2_Hakim:
+        return "Team 2 Hakim"
+    else:
+        return "Non assigné"
+
 
 # Fonction pour appliquer des styles aux moyennes
 def style_moyennes(df, top_n=3, bottom_n=5):
@@ -127,21 +131,28 @@ if fichier_principal is not None:
         - **Top 3** : Jaune
         - **Supérieur à la moyenne** : Vert
         - **Inférieur à la moyenne** : Rose
-        - **Flop 5** : Rouge
+        - **Très inférieur à la moyenne 5** : Rouge
         """)
+        
         styled_df = style_moyennes(repetitions_graph)
         st.dataframe(styled_df, use_container_width=True)
+            if not lignes_tirees.empty:
+                for _, ligne in lignes_tirees.iterrows():
+                    col_info, col_photo = st.columns([3, 1])
 
-        # Tirage au sort avec type de défaut
-        st.subheader("Tirage au sort")
-        tirages = tirage_au_sort(df_principal, col_prenom_nom, col_date, debut_periode, fin_periode)
-        for operateur, lignes in tirages:
-            st.write(f"### {operateur}")
-            for _, ligne in lignes.iterrows():
-                st.write(f"- **Date** : {ligne[col_date]}")
-                st.write(f"  - **Type de défaut** : {'Technique' if pd.notna(ligne['Technique']) else 'Opérationnel'}")
-                st.write(f"  - **Équipement** : {ligne['Équipement']}")
-                st.write(f"  - **Localisation** : {ligne['Localisation']}")
+                    with col_info:
+                        st.markdown(f"""
+                        **Date**: {ligne['Date et Heure début d\'intervention']}
+                        **Opérateur**: {ligne['Prénom et nom']}
+                        **Équipement**: {ligne['Équipement']}
+                        **Localisation**: {ligne['Localisation']}
+                        **Problème**: {ligne['Technique'] if pd.notna(ligne['Technique']) else ligne['Opérationnel']}
+                        """)
 
-        # Téléchargements
-        st.download_button("Télécharger le tableau en XLSX", data=convert_df_to_xlsx(repetitions_graph), file_name="Rapports.xlsx")
+                    with col_photo:
+                        if pd.notna(ligne['Photo']):
+                            st.image(ligne['Photo'], width=200)
+                        else:
+                            st.write("Pas de photo disponible")
+            else:
+                st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
