@@ -187,8 +187,8 @@ with col_tableau:
         - <span style='background-color: lightcoral; color: white; padding: 2px 5px;'>Flop 5</span>
     """, unsafe_allow_html=True)
 
-        st.write("### Tableau des rapports d'intervention par période et par opérateur")
-        st.dataframe(repetitions_tableau, use_container_width=True)
+    st.write("### Tableau des rapports d'intervention par période et par opérateur")
+    st.dataframe(repetitions_tableau, use_container_width=True)
 
         # Affichage des tableaux
         st.subheader(f"Tirage au sort de {nombre_lignes} lignes par opérateur")
