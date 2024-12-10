@@ -210,10 +210,10 @@ with col_tableau:
                         **Problème**: {ligne['Technique'] if pd.notna(ligne['Technique']) else ligne['Opérationnel']}
                     """)
                  with col_photo:
-                    if pd.notna(ligne['Photo']):
+                     if pd.notna(ligne['Photo']):
                         st.image(ligne['Photo'], width=200)
-                    else:
-                        st.write("Pas de photo disponible")
+                     else:
+                         st.write("Pas de photo disponible")
         else:
             st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
 
