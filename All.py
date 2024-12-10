@@ -191,31 +191,31 @@ with col_tableau:
     st.dataframe(repetitions_tableau, use_container_width=True)
 
         # Affichage des tableaux
-        st.subheader(f"Tirage au sort de {nombre_lignes} lignes par opérateur")
-        df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
-        for operateur in operateurs_selectionnes:
-            st.write(f"### Tirage pour {operateur}:")
-            df_operateur = df_filtre[df_filtre[col_prenom_nom] == operateur]
-            lignes_tirees = df_operateur.sample(n=min(nombre_lignes, len(df_operateur)))
-            if not lignes_tirees.empty:
-                for _, ligne in lignes_tirees.iterrows():
-                    col_info, col_photo = st.columns([3, 1])
-                    with col_info:
-                        st.markdown(f"""
-                            **Date**: {ligne['Date et Heure début d\'intervention']}
-                            **Opérateur**: {ligne['Prénom et nom']}
-                            **Équipement**: {ligne['Équipement']}
-                            **Localisation**: {ligne['Localisation']}
-                            **Type de défaut**: {'Technique' if pd.notna(ligne['Technique']) else 'Opérationnel'}
-                            **Problème**: {ligne['Technique'] if pd.notna(ligne['Technique']) else ligne['Opérationnel']}
-                        """)
-                    with col_photo:
-                        if pd.notna(ligne['Photo']):
-                            st.image(ligne['Photo'], width=200)
-                        else:
-                            st.write("Pas de photo disponible")
-            else:
-                st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
+    st.subheader(f"Tirage au sort de {nombre_lignes} lignes par opérateur")
+    df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
+    for operateur in operateurs_selectionnes:
+        st.write(f"### Tirage pour {operateur}:")
+        df_operateur = df_filtre[df_filtre[col_prenom_nom] == operateur]
+        lignes_tirees = df_operateur.sample(n=min(nombre_lignes, len(df_operateur)))
+        if not lignes_tirees.empty:
+            for _, ligne in lignes_tirees.iterrows():
+                col_info, col_photo = st.columns([3, 1])
+                with col_info:
+                    st.markdown(f"""
+                        **Date**: {ligne['Date et Heure début d\'intervention']}
+                        **Opérateur**: {ligne['Prénom et nom']}
+                        **Équipement**: {ligne['Équipement']}
+                        **Localisation**: {ligne['Localisation']}
+                        **Type de défaut**: {'Technique' if pd.notna(ligne['Technique']) else 'Opérationnel'}
+                        **Problème**: {ligne['Technique'] if pd.notna(ligne['Technique']) else ligne['Opérationnel']}
+                    """)
+                 with col_photo:
+                    if pd.notna(ligne['Photo']):
+                        st.image(ligne['Photo'], width=200)
+                    else:
+                        st.write("Pas de photo disponible")
+        else:
+            st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
 
-        if st.checkbox("Afficher toutes les données"):
-            st.dataframe(df_principal)
+    if st.checkbox("Afficher toutes les données"):
+       st.dataframe(df_principal)
