@@ -152,24 +152,23 @@ if fichier_principal is not None:
                     textposition='top center'
                 ))
                 
+            # Ligne de moyenne globale
+            fig1.add_trace(go.Scatter(
+                x=moyennes_par_periode[periode_selectionnee].unique(),
+                y=[moyenne_globale] * len(moyennes_par_periode[periode_selectionnee].unique()),
+                mode='lines',
+                name='Moyenne Globale',
+                line=dict(color='red', dash='dash'),
+                hoverinfo='skip'
+            ))
 
-                # Ligne de moyenne globale
-                fig1.add_trace(go.Scatter(
-                    x=moyennes_par_periode[periode_selectionnee].unique(),
-                    y=[moyenne_globale] * len(moyennes_par_periode[periode_selectionnee].unique()),
-                    mode='lines',
-                    name='Moyenne Globale',
-                    line=dict(color='red', dash='dash'),
-                    hoverinfo='skip'
-                ))
-
-                fig1.update_layout(
-                    title=f"Moyenne des rapports d'interventions par opérateur ({periode_selectionnee})",
-                    xaxis_title=periode_selectionnee,
-                    yaxis_title="Moyenne des rapports d'interventions",
-                    template="plotly_dark"
-                )
-                st.plotly_chart(fig1, use_container_width=True)
+            fig1.update_layout(
+                title=f"Moyenne des rapports d'interventions par opérateur ({periode_selectionnee})",
+                xaxis_title=periode_selectionnee,
+                yaxis_title="Moyenne des rapports d'interventions",
+                template="plotly_dark"
+            )
+            st.plotly_chart(fig1, use_container_width=True)
 
         with col_tableau:
             st.write("### Tableau des Moyennes par opérateur")
