@@ -137,54 +137,58 @@ if fichier_principal is not None:
             # Graphique des moyennes avec moyenne globale
             fig1 = go.Figure()
             colors = px.colors.qualitative.Set1
-            for i, operateur in enumerate(operateurs_selectionnes):
-                df_operateur_moyenne = moyennes_par_periode[moyennes_par_periode[col_prenom_nom] == operateur]
-                fig1.add_trace(go.Scatter(
-                    x=df_operateur_moyenne[periode_selectionnee],
-                    y=df_operateur_moyenne['Repetitions'],
-                    mode='lines+markers',
-                    name=operateur,
-                    line=dict(color=colors[i % len(colors)]),
-                    text=df_operateur_moyenne['Repetitions'],
-                    textposition='top center'
-                ))
 
-            # Ligne de moyenne globale
-            fig1.add_trace(go.Scatter(
-                x=moyennes_par_periode[periode_selectionnee].unique(),
-                y=[moyenne_globale] * len(moyennes_par_periode[periode_selectionnee].unique()),
-                mode='lines',
-                name='Moyenne Globale',
-                line=dict(color='red', dash='dash'),
-                hoverinfo='skip'
-            ))
+col_graph, col_tableau = st.columns(2)
 
-            fig1.update_layout(
-                title=f"Moyenne des rapports d'interventions par opérateur ({periode_selectionnee}) avec ligne de moyenne globale",
-                xaxis_title=periode_selectionnee,
-                yaxis_title="Moyenne des rapports d'interventions",
-                template="plotly_dark"
-            )
-            st.plotly_chart(fig1)
+with col_graph:
+    # Graphique des moyennes avec moyenne globale
+    fig1 = go.Figure()
+    colors = px.colors.qualitative.Set1
+    for i, operateur in enumerate(operateurs_selectionnes):
+        df_operateur_moyenne = moyennes_par_periode[moyennes_par_periode[col_prenom_nom] == operateur]
+        fig1.add_trace(go.Scatter(
+            x=df_operateur_moyenne[periode_selectionnee],
+            y=df_operateur_moyenne['Repetitions'],
+            mode='lines+markers',
+            name=operateur,
+            line=dict(color=colors[i % len(colors)]),
+            text=df_operateur_moyenne['Repetitions'],
+            textposition='top center'
+        ))
 
-        # Affichage des tableaux
-        col3, col4 = st.columns([2, 3])
-        with col3:
-            st.write("### Tableau des Moyennes par période et par opérateur")
-            styled_df = style_moyennes(moyennes_par_operateur)
-            st.dataframe(styled_df, use_container_width=True)
+    # Ligne de moyenne globale
+    fig1.add_trace(go.Scatter(
+        x=moyennes_par_periode[periode_selectionnee].unique(),
+        y=[moyenne_globale] * len(moyennes_par_periode[periode_selectionnee].unique()),
+        mode='lines',
+        name='Moyenne Globale',
+        line=dict(color='red', dash='dash'),
+        hoverinfo='skip'
+    ))
 
-            st.markdown("""
-                **Légende :**
-                - <span style='background-color: gold; color: black; padding: 2px 5px;'>Top 3</span>
-                - <span style='background-color: lightgreen; padding: 2px 5px;'>Supérieur à la moyenne</span>
-                - <span style='background-color: lightpink; padding: 2px 5px;'>Inférieur à la moyenne</span>
-                - <span style='background-color: lightcoral; color: white; padding: 2px 5px;'>Flop 5</span>
-            """, unsafe_allow_html=True)
+    fig1.update_layout(
+        title=f"Moyenne des rapports d'interventions par opérateur ({periode_selectionnee})",
+        xaxis_title=periode_selectionnee,
+        yaxis_title="Moyenne des rapports d'interventions",
+        template="plotly_dark"
+    )
+    st.plotly_chart(fig1, use_container_width=True)
 
-        with col4:
-            st.write("### Tableau des rapports d'intervention par période et par opérateur")
-            st.dataframe(repetitions_tableau, use_container_width=True)
+with col_tableau:
+    st.write("### Tableau des Moyennes par opérateur")
+    styled_df = style_moyennes(moyennes_par_operateur)
+    st.dataframe(styled_df, use_container_width=True)
+
+    st.markdown("""
+        **Légende :**
+        - <span style='background-color: gold; color: black; padding: 2px 5px;'>Top 3</span>
+        - <span style='background-color: lightgreen; padding: 2px 5px;'>Supérieur à la moyenne</span>
+        - <span style='background-color: lightpink; padding: 2px 5px;'>Inférieur à la moyenne</span>
+        - <span style='background-color: lightcoral; color: white; padding: 2px 5px;'>Flop 5</span>
+    """, unsafe_allow_html=True)
+
+        st.write("### Tableau des rapports d'intervention par période et par opérateur")
+        st.dataframe(repetitions_tableau, use_container_width=True)
 
         # Affichage des tableaux
         st.subheader(f"Tirage au sort de {nombre_lignes} lignes par opérateur")
