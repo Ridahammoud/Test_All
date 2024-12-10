@@ -54,8 +54,6 @@ def tirage_au_sort(df, col_prenom_nom, col_date, debut_periode, fin_periode):
             resultats.append((operateur, lignes_tirees))
     return resultats
 
-
-
 # Configuration de la page Streamlit
 st.set_page_config(page_title="Analyse des Interventions", page_icon="📊", layout="wide")
 st.title("📊 Analyse des interventions des opérateurs")
@@ -68,33 +66,36 @@ if fichier_principal is not None:
     col1, col2 = st.columns([2, 3])
 
     with col1:
-        # Validation des colonnes requises
-        required_columns = ["Prénom et nom", "Date et Heure début d'intervention", "Équipement", "Localisation", "Technique", "Opérationnel", "Photo"]
-        missing_columns = [col for col in required_columns if col not in df_principal.columns]
-        if missing_columns:
-            st.error(f"Les colonnes suivantes sont manquantes : {', '.join(missing_columns)}")
-            st.stop()
-        
-    # Conversion des dates
-    col_prenom_nom = "Prénom et nom"
-    col_date = "Date et Heure début d'intervention"
-    df_principal[col_date] = pd.to_datetime(df_principal[col_date], errors='coerce')
-    df_principal = df_principal.dropna(subset=[col_date])
+        col_prenom_nom = df_principal.columns[4]
+        col_date = df_principal.columns[6]
 
-    # Interface utilisateur
-    operateurs = df_principal[col_prenom_nom].unique().tolist()
-    operateurs_selectionnes = st.multiselect("Choisissez un ou plusieurs opérateurs", operateurs)
-    
-    periodes = ["Jour", "Semaine", "Mois", "Trimestre", "Année"]
-    periode_selectionnee = st.selectbox("Choisissez une période", periodes)
-    
-    date_min = df_principal[col_date].min()
-    date_max = df_principal[col_date].max()
-    debut_periode = st.date_input("Début de la période", min_value=date_min, max_value=date_max, value=date_min)
-    fin_periode = st.date_input("Fin de la période", min_value=debut_periode, max_value=date_max, value=date_max)
+        operateurs = df_principal[col_prenom_nom].unique().tolist()
+        operateurs.append("Total")
+        operateurs.append("Team 1 : Christian")
+        operateurs.append("Team 2 : Hakim")
+        operateurs_selectionnes = st.multiselect("Choisissez un ou plusieurs opérateurs", operateurs)
+
+        if "Total" in operateurs_selectionnes:
+            operateurs_selectionnes = df_principal[col_prenom_nom].unique().tolist()
+            
+        periodes = ["Jour", "Semaine", "Mois", "Trimestre", "Année"]
+        periode_selectionnee = st.selectbox("Choisissez une période", periodes)
+
+        df_principal[col_date] = pd.to_datetime(df_principal[col_date], errors='coerce')
+
+        date_min = df_principal[col_date].min()
+        date_max = df_principal[col_date].max()
+
+        if pd.isna(date_min) or pd.isna(date_max):
+            st.warning("Certaines dates dans le fichier sont invalides. Elles ont été ignorées.")
+            date_min = date_max = None
+
+        debut_periode = st.date_input("Début de la période", min_value=date_min, max_value=date_max, value=date_min)
+        fin_periode = st.date_input("Fin de la période", min_value=debut_periode, max_value=date_max, value=date_max)
 
     if st.button("Analyser"):
-        # Ajout de colonnes pour les périodes
+        df_principal = df_principal.dropna(subset=[col_date])
+
         df_principal['Jour'] = df_principal[col_date].dt.date
         df_principal['Semaine'] = df_principal[col_date].dt.to_period('W').astype(str)
         df_principal['Mois'] = df_principal[col_date].dt.to_period('M').astype(str)
@@ -102,12 +103,13 @@ if fichier_principal is not None:
         df_principal['Année'] = df_principal[col_date].dt.year
 
         df_graph = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
-        
+
         groupby_cols = [col_prenom_nom]
         if periode_selectionnee != "Total":
             groupby_cols.append(periode_selectionnee)
 
-        repetitions_graph = df_graph.groupby(groupby_cols).size().reset_index(name='Repetitions')
+        repetitions_graph = df_graph[df_graph[col_prenom_nom].isin(operateurs_selectionnes)].groupby(groupby_cols).size().reset_index(name='Repetitions')
+        repetitions_tableau = df_principal[df_principal[col_prenom_nom].isin(operateurs_selectionnes)].groupby(groupby_cols).size().reset_index(name='Repetitions')
 
         with col2:
             # graphique principal
