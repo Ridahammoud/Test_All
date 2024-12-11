@@ -182,7 +182,7 @@ if fichier_principal is not None:
 
         # Affichage des tableaux
         st.write("### La Moyenne Globale")
-        st.dataframe(moyenne_globale)
+        st.write(moyenne_globale)
         st.write("### Tableau des rapports d'intervention par période et par opérateur")
         st.dataframe(repetitions_tableau, use_container_width=True)
 
