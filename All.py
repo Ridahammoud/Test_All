@@ -159,10 +159,7 @@ if fichier_principal is not None:
                     line=dict(color=colors[i % len(colors)]),
                     text=df_operateur_moyenne['Repetitions'],
                     textposition='top center'
-                ))
-                
-
-
+                ))              
             fig1.update_layout(
                 title=f"Moyenne des rapports d'interventions par opérateur ({periode_selectionnee})",
                 xaxis_title=periode_selectionnee,
