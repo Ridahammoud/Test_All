@@ -236,8 +236,8 @@ if fichier_principal is not None:
                             st.image(ligne['Photo'], width=200)
                         else:
                             st.write("Pas de photo disponible")
-            else:
-                st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
+        else:
+            st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
 
     if st.checkbox("Afficher toutes les données"):
        st.dataframe(df_principal)
