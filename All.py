@@ -66,30 +66,10 @@ def generate_pdf(df, filename="tableau.pdf"):
 st.set_page_config(page_title="Analyse des Interventions", page_icon="📊", layout="wide")
 st.title("📊 Analyse des interventions des opérateurs")
 
-team_1_Christian = [
-    "Abdelaziz Hani Ddamir", "Aboubacar Tamadou", "Alhousseyni Dia", "Berkant Ince",
-    "Boubakar Sidiki Ouedrago", "Boubou Gassama", "Chamsoudine Abdoulwahab", "Dagobert Ewane Jene",
-    "Dione Mbaye", "Doro Diaw", "Enrique Aguey - Zinsou", "Fabien Prevost", "Fabrice Nelien",
-    "Idrissa Yatera", "Jabbar Arshad", "Jacques-Robert Bertrand", "Karamoko Yatabare",
-    "Mahamadou Niakate", "Mamadou Bagayogo", "Mamadou  Kane", "Mohamed Lamine Saad", "Moussa Soukouna",
-    "Pascal Nouaga", "Rachid Ramdane", "Taha Hsine", "Tommy Lee Casdard", "Volcankan Ince",
-    "Youssef Mezouar", "Youssouf Wadiou", "Elyas Bouzar", "Reda Jdi"
-]
-
-team_2_Hakim = [
-    "Abdoul Ba", "Aladji Sakho", "Amadou Sow", "Arfang Cisse", "Bouabdellah Ayad",
-    "Cheickne Kebe", "Dany Chantre", "David Diockou N'Diaye", "Dylan Baron", "Fabien Tsop Nang",
-    "Fabrice Badibengi", "Faker Ajili", "Fodie Koita Camara", "Gaetan Girard", "Idy Barro",
-    "Aboubacar Cisse", "Johnny Michaud", "Ladji Bamba", "Mamadou Fofana", "Mamadou Kane",
-    "Mamadou Sangare", "Mamadou Soumare", "Mohamed Bouchleh", "Mostefa Mokhtari", "Nassur Ibrahim",
-    "Riadh Moussa", "Saim Haroun Bhatti", "Samir Chikh", "Tony Allot", "Walter Tavares"
-]
-
 fichier_principal = st.file_uploader("Choisissez le fichier principal (donnee_Aesma.xlsx)", type="xlsx")
 
 if fichier_principal is not None:
     df_principal = charger_donnees(fichier_principal)
-    df_principal['Team'] = df_principal['Prénom et nom'].apply(assign_team)
 
     col1, col2 = st.columns([2, 3])
 
@@ -98,19 +78,13 @@ if fichier_principal is not None:
         col_date = df_principal.columns[6]
 
         operateurs = df_principal[col_prenom_nom].unique().tolist()
-        teams = df_principal['Team'].unique().tolist()
-        teams.insert(0, "Total")
+        operateurs.append("Total")
+        operateurs.append("Team 1 : Christian")
+        operateurs.append("Team 2 : Hakim")
+        operateurs_selectionnes = st.multiselect("Choisissez un ou plusieurs opérateurs", operateurs)
 
-        selection_type = st.selectbox("Sélectionner par", ["Opérateur", "Team"])
-        if selection_type == "Opérateur":
-            operateurs_selectionnes = st.multiselect("Choisissez un ou plusieurs opérateurs", operateurs)
-            if "Total" in operateurs_selectionnes:
-                operateurs_selectionnes = df_principal[col_prenom_nom].unique().tolist()
-        else:
-            teams_selectionnes = st.multiselect("Choisissez une ou plusieurs teams", teams)
-            if "Total" in teams_selectionnes:
-                teams_selectionnes = df_principal['Team'].unique().tolist()
-            operateurs_selectionnes = df_principal[df_principal['Team'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
+        if "Total" in operateurs_selectionnes:
+            operateurs_selectionnes = df_principal[col_prenom_nom].unique().tolist()
 
         periodes = ["Jour", "Semaine", "Mois", "Trimestre", "Année"]
         periode_selectionnee = st.selectbox("Choisissez une période", periodes)
@@ -137,14 +111,13 @@ if fichier_principal is not None:
         df_principal['Année'] = df_principal[col_date].dt.year
 
         df_graph = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
-        df_graph = df_graph[df_graph['Prénom et nom'].isin(operateurs_selectionnes)]
 
         groupby_cols = [col_prenom_nom]
         if periode_selectionnee != "Total":
             groupby_cols.append(periode_selectionnee)
 
-        repetitions_graph = df_graph.groupby(groupby_cols).size().reset_index(name='Repetitions')
-        repetitions_tableau = df_principal[df_principal['Prénom et nom'].isin(operateurs_selectionnes)].groupby(groupby_cols).size().reset_index(name='Repetitions')
+        repetitions_graph = df_graph[df_graph[col_prenom_nom].isin(operateurs_selectionnes)].groupby(groupby_cols).size().reset_index(name='Repetitions')
+        repetitions_tableau = df_principal[df_principal[col_prenom_nom].isin(operateurs_selectionnes)].groupby(groupby_cols).size().reset_index(name='Repetitions')
 
         with col2:
             # Graphique principal (barres)
@@ -162,40 +135,37 @@ if fichier_principal is not None:
             moyenne_globale = moyennes_par_periode['Repetitions'].mean()
 
             # Affichage des graphiques et tableaux côte à côte
-            col_graph, col_tableau = st.columns(2)
 
-            with col_graph:
-                # Graphique des moyennes avec moyenne globale
-                fig1 = go.Figure()
-                colors = px.colors.qualitative.Set1
-                for i, operateur in enumerate(operateurs_selectionnes):
-                    df_operateur_moyenne = moyennes_par_periode[moyennes_par_periode[col_prenom_nom] == operateur]
-                    fig1.add_trace(go.Scatter(
-                        x=df_operateur_moyenne[periode_selectionnee],
-                        y=df_operateur_moyenne['Repetitions'],
-                        mode='lines+markers',
-                        name=operateur,
-                        line=dict(color=colors[i % len(colors)]),
-                        text=df_operateur_moyenne['Repetitions'],
-                        textposition='top center'
-                    ))
-
-                # Ligne de moyenne globale
+        col_graph, col_tableau = st.columns(2)
+        with col_graph:
+            fig1 = go.Figure()
+            colors = px.colors.qualitative.Set1
+            # Ligne de moyenne globale
+            fig1.add_trace(go.Scatter(
+                x=moyennes_par_periode[periode_selectionnee].unique(),
+                y=[moyenne_globale] * len(moyennes_par_periode[periode_selectionnee].unique()),
+                mode='lines',
+                name='Moyenne Globale',
+                line=dict(color='red', dash='dash'),
+                hoverinfo='skip'
+            ))
+            for i, operateur in enumerate(operateurs_selectionnes):
+                df_operateur_moyenne = moyennes_par_periode[moyennes_par_periode[col_prenom_nom] == operateur]
                 fig1.add_trace(go.Scatter(
-                    x=moyennes_par_periode[periode_selectionnee].unique(),
-                    y=[moyenne_globale] * len(moyennes_par_periode[periode_selectionnee].unique()),
-                    mode='lines',
-                    name='Moyenne Globale',
-                    line=dict(color='red', dash='dash'),
-                    hoverinfo='skip'
-                ))
-
-                fig1.update_layout(
-                    title=f"Moyenne des rapports d'interventions par opérateur ({periode_selectionnee})",
-                    xaxis_title=periode_selectionnee,
-                    yaxis_title="Moyenne des rapports d'interventions",
+                    x=df_operateur_moyenne[periode_selectionnee],
+                    y=df_operateur_moyenne['Repetitions'],
+                    mode='lines+markers',
+                    name=operateur,
+                    line=dict(color=colors[i % len(colors)]),
+                    text=df_operateur_moyenne['Repetitions'],
+                    textposition='top center'
+                ))              
+            fig1.update_layout(
+                title=f"Moyenne des rapports d'interventions par opérateur ({periode_selectionnee})",
+                xaxis_title=periode_selectionnee,
+                yaxis_title="Moyenne des rapports d'interventions",
                 template="plotly_dark"
-                )
+            )
             st.plotly_chart(fig1, use_container_width=True)
 
         with col_tableau:
