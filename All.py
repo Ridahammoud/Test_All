@@ -140,6 +140,15 @@ if fichier_principal is not None:
         with col_graph:
             fig1 = go.Figure()
             colors = px.colors.qualitative.Set1
+            # Ligne de moyenne globale
+            fig1.add_trace(go.Scatter(
+                x=moyennes_par_periode[periode_selectionnee].unique(),
+                y=[moyenne_globale] * len(moyennes_par_periode[periode_selectionnee].unique()),
+                mode='lines',
+                name='Moyenne Globale',
+                line=dict(color='red', dash='dash'),
+                hoverinfo='skip'
+            ))
             for i, operateur in enumerate(operateurs_selectionnes):
                 df_operateur_moyenne = moyennes_par_periode[moyennes_par_periode[col_prenom_nom] == operateur]
                 fig1.add_trace(go.Scatter(
@@ -152,15 +161,7 @@ if fichier_principal is not None:
                     textposition='top center'
                 ))
                 
-            # Ligne de moyenne globale
-            fig1.add_trace(go.Scatter(
-                x=moyennes_par_periode[periode_selectionnee].unique(),
-                y=[moyenne_globale] * len(moyennes_par_periode[periode_selectionnee].unique()),
-                mode='lines',
-                name='Moyenne Globale',
-                line=dict(color='red', dash='dash'),
-                hoverinfo='skip'
-            ))
+
 
             fig1.update_layout(
                 title=f"Moyenne des rapports d'interventions par opérateur ({periode_selectionnee})",
@@ -183,6 +184,8 @@ if fichier_principal is not None:
             """, unsafe_allow_html=True)
 
         # Affichage des tableaux
+        st.write("### La Moyenne Globale")
+        st.dataframe(moyenne_globale)
         st.write("### Tableau des rapports d'intervention par période et par opérateur")
         st.dataframe(repetitions_tableau, use_container_width=True)
 
