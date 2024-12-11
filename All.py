@@ -230,7 +230,7 @@ if fichier_principal is not None:
                             **Localisation**: {ligne['Localisation']}
                             **Type de défaut**: {'Technique' if pd.notna(ligne['Technique']) else 'Opérationnel'}
                             **Problème**: {ligne['Technique'] if pd.notna(ligne['Technique']) else ligne['Opérationnel']}
-                        """)
+                            """)
                     with col_photo:
                         if pd.notna(ligne['Photo']):
                             st.image(ligne['Photo'], width=200)
