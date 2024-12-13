@@ -123,7 +123,7 @@ if fichier_principal is not None:
             if "Team 1 Christian" in teams_selectionnes:
                 teams_selectionnes = df_principal['Team 1 Christian'].unique().tolist()
                 operateurs_selectionnes = df_principal[df_principal['Team 1 Christian'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
-            else "Team 2 Hakim" in teams_selectionnes:
+            elif "Team 2 Hakim" in teams_selectionnes:
                 teams_selectionnes = df_principal['Team 2 Hakim'].unique().tolist()
                 operateurs_selectionnes = df_principal[df_principal['Team 2 Hakim'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
  
