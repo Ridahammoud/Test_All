@@ -169,9 +169,9 @@ if fichier_principal is not None:
 
             # Calcul des moyennes par opérateur et par période
             moyennes_par_periode = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom])['Repetitions'].mean().reset_index()
-            moyennes_par_periode_exclus = repetitions_graph.groupby([periode_selectionnee, team_exclus])['Repetitions'].mean().reset_index()
             moyennes_par_operateur = moyennes_par_periode.groupby(['Prénom et nom'])['Repetitions'].mean().reset_index()
-            moyenne_globale = moyennes_par_periode_exclus['Repetitions'].mean()
+            
+            moyenne_globale = moyennes_par_periode.groupby([team_exclus])['Repetitions'].mean()
 
  # Affichage des graphiques et tableaux côte à côte
 
