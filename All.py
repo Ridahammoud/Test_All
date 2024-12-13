@@ -120,10 +120,13 @@ if fichier_principal is not None:
                 operateurs_selectionnes = df_principal[col_prenom_nom].unique().tolist()
         else:
             teams_selectionnes = st.multiselect("Choisissez une ou plusieurs teams", teams)
-            if "Total" in teams_selectionnes:
-                teams_selectionnes = df_principal['Team'].unique().tolist()
-            operateurs_selectionnes = df_principal[df_principal['Team'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
-
+            if "Team 1 Christian" in teams_selectionnes:
+                teams_selectionnes = df_principal['Team 1 Christian'].unique().tolist()
+                operateurs_selectionnes = df_principal[df_principal['Team 1 Christian'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
+            else "Team 2 Hakim" in teams_selectionnes:
+                teams_selectionnes = df_principal['Team 2 Hakim'].unique().tolist()
+                operateurs_selectionnes = df_principal[df_principal['Team 2 Hakim'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
+ 
         periodes = ["Jour", "Semaine", "Mois", "Trimestre", "Année"]
         periode_selectionnee = st.selectbox("Choisissez une période", periodes)
 
@@ -172,8 +175,10 @@ if fichier_principal is not None:
             moyennes_par_periode = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom])['Repetitions'].mean().reset_index()
             col_prenom_nom_exclus = df_principal[df_principal['Prénom et nom'].isin(team_exclus)].columns[4]
             moyennes_par_periode_exclus = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom_exclus])['Repetitions'].mean().reset_index()
+            moyennes_par_periode_exclus_total = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom_exclus])['Repetitions'].mean().reset_index()
             moyennes_par_operateur = moyennes_par_periode.groupby(['Prénom et nom'])['Repetitions'].mean().reset_index()
             moyenne_globale = moyennes_par_periode_exclus['Repetitions'].mean()
+            moyenne_total = 
 
  # Affichage des graphiques et tableaux côte à côte
 
@@ -222,7 +227,8 @@ if fichier_principal is not None:
             """, unsafe_allow_html=True)
 
         # Affichage des tableaux
-        st.markdown(f"### La Moyenne Globale des rapports d'intervention par {periode_selectionnee} est : {moyenne_globale}")
+        st.markdown(f"### La Moyenne des rapports d'intervention des Opérateurs par {periode_selectionnee} est : {moyenne_globale}")
+        st.markdown(f"### La Moyenne Globale des rapports d'intervention par {periode_selectionnee} est : {moyenne_total}")
         st.write("### Tableau des rapports d'intervention par période et par opérateur")
         st.dataframe(repetitions_tableau, use_container_width=True)
 
