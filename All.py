@@ -182,7 +182,7 @@ if fichier_principal is not None:
             moy_Mensuel = par_mois.groupby(['Prénom et nom']).mean('Repetitions_Mois')
             moy_Mensuel = moy_Mensuel.reset_index()
             moy_Mensuel = moy_Mensuel[moy_Mensuel['Prénom et nom'].isin(team_exclus)]
-            moyenne_total = moy_Mensuel['Repetitions_Mois'].mean()
+            moyenne_total = moy_Mensuel.mean('Repetitions_Mois')
 
  # Affichage des graphiques et tableaux côte à côte
 
