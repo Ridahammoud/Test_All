@@ -251,15 +251,18 @@ for operateur in operateurs_selectionnes:
                     """)
             with col_photo:
                 if pd.notna(ligne['Photo']):
-                    # Assurez-vous que le chemin est correct
-                    image_path = ligne['Photo']
-                    if not os.path.isabs(image_path):
-                        image_path = os.path.join(script_dir, image_path)
-                    try:
-                        st.image(image_path, width=200)
-                    except Exception as e:
-                        st.error(f"Erreur de chargement de l'image : {e}")
+                    if ligne['Photo'].startswith('http'):
+                        st.image(ligne['Photo'], width=200)
+                    else:
+                        # Si ce n'est aps une URL, assurez que le chemin est correct
+                        image_path = ligne['Photo']
+                        if not os.path.isabs(image_path):
+                            image_path = os.path.join(script_dir, image_path)
+                        try:
+                            st.image(image_path, width=200)
+                        except Exception as e:
+                                st.error(f"Erreur de chargement de l'image : {e}")
+                        else:
+                            st.write("Pas de photo disponible")            
                 else:
-                    st.write("Pas de photo disponible")
-    else:
-        st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
+                    st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
