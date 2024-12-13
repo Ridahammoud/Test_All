@@ -227,7 +227,7 @@ if fichier_principal is not None:
             """, unsafe_allow_html=True)
 
         # Affichage des tableaux
-        st.markdown(f"### La Moyenne des rapports d'intervention des Opérateurs par {periode_selectionnee} est : {moyenne_globale}")
+        st.markdown(f"### La Moyenne des Opérateurs selectionnés par {periode_selectionnee} est : {moyenne_globale}")
         st.markdown(f"### La Moyenne Globale des rapports d'intervention par {periode_selectionnee} est : {moyenne_total}")
         st.write("### Tableau des rapports d'intervention par période et par opérateur")
         st.dataframe(repetitions_tableau, use_container_width=True)
