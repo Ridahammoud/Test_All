@@ -30,7 +30,18 @@ team_2_Hakim = [
     "Mamadou Sangare", "Mamadou Soumare", "Mohamed Bouchleh", "Mostefa Mokhtari", "Nassur Ibrahim",
     "Riadh Moussa", "Saim Haroun Bhatti", "Samir Chikh", "Tony Allot", "Walter Tavares"
 ]
-
+team_exclus = ["Abdelaziz Hani Ddamir", "Aboubacar Tamadou", "Alhousseyni Dia", "Berkant Ince",
+    "Boubakar Sidiki Ouedrago", "Boubou Gassama", "Chamsoudine Abdoulwahab", "Dagobert Ewane Jene",
+    "Dione Mbaye", "Doro Diaw", "Enrique Aguey - Zinsou", "Fabien Prevost", "Fabrice Nelien",
+    "Idrissa Yatera", "Jabbar Arshad", "Jacques-Robert Bertrand", "Karamoko Yatabare",
+    "Mahamadou Niakate", "Mamadou Bagayogo", "Mamadou  Kane", "Mohamed Lamine Saad", "Moussa Soukouna",
+    "Pascal Nouaga", "Rachid Ramdane", "Taha Hsine", "Tommy Lee Casdard", "Volcankan Ince",
+    "Youssef Mezouar", "Youssouf Wadiou", "Elyas Bouzar", "Reda Jdi","Abdoul Ba", "Aladji Sakho", "Amadou Sow", "Arfang Cisse", "Bouabdellah Ayad",
+    "Cheickne Kebe", "Dany Chantre", "David Diockou N'Diaye", "Dylan Baron", "Fabien Tsop Nang",
+    "Fabrice Badibengi", "Faker Ajili", "Fodie Koita Camara", "Gaetan Girard", "Idy Barro",
+    "Aboubacar Cisse", "Johnny Michaud", "Ladji Bamba", "Mamadou Fofana", "Mamadou Kane",
+    "Mamadou Sangare", "Mamadou Soumare", "Mohamed Bouchleh", "Mostefa Mokhtari", "Nassur Ibrahim",
+    "Riadh Moussa", "Saim Haroun Bhatti", "Samir Chikh", "Tony Allot", "Walter Tavares"]
 # Ajouter une colonne pour les équipes
 def assign_team(name):
     if name in team_1_Christian:
@@ -158,8 +169,9 @@ if fichier_principal is not None:
 
             # Calcul des moyennes par opérateur et par période
             moyennes_par_periode = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom])['Repetitions'].mean().reset_index()
+            moyennes_par_periode_exclus = repetitions_graph.groupby([periode_selectionnee, team_exclus])['Repetitions'].mean().reset_index()
             moyennes_par_operateur = moyennes_par_periode.groupby(['Prénom et nom'])['Repetitions'].mean().reset_index()
-            moyenne_globale = moyennes_par_periode['Repetitions'].mean()
+            moyenne_globale = moyennes_par_periode_exclus['Repetitions'].mean()
 
  # Affichage des graphiques et tableaux côte à côte
 
