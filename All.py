@@ -6,6 +6,7 @@ import xlsxwriter
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import plotly.express as px
+import os
 
 # Fonction de chargement des données
 @st.cache_data
