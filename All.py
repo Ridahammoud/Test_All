@@ -174,12 +174,16 @@ if fichier_principal is not None:
             # Calcul des moyennes par opérateur et par période
             moyennes_par_periode = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom])['Repetitions'].mean().reset_index()
             col_prenom_nom_exclus = df_principal[df_principal['Prénom et nom'].isin(team_exclus)].columns[4]
-            df_exclus = df_principal[df_principal['Prénom et nom'].isin(team_exclus)]
             moyennes_par_periode_exclus = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom_exclus])['Repetitions'].mean().reset_index()
-            moyennes_exclus_total = df_exclus.groupby('Prénom et nom')['Repetitions'].mean().reset_index()
             moyennes_par_operateur = moyennes_par_periode.groupby(['Prénom et nom'])['Repetitions'].mean().reset_index()
             moyenne_globale = moyennes_par_operateur['Repetitions'].mean()
-            moyenne_total =  moyennes_exclus_total['Repetitions'].mean()
+            
+            par_mois = df_principal.groupby(['Prénom et nom', 'Mois']).size().reset_index(name='Repetitions_Mois')
+            moy_Mensuel = par_mois.groupby(['Prénom et nom']).mean('Repetitions_Mois')
+            moy_Mensuel = moy_Mensuel.reset_index()
+            moy_Mensuel = moy_Mensuel[moy_Mensuel['Prénom et nom'].isin(team_exclus)]
+            moy_globale = moy_Mensuel['Repetitions_Mois'].mean()
+            moyenne_total = moy_globale
 
  # Affichage des graphiques et tableaux côte à côte
 
