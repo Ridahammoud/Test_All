@@ -205,7 +205,7 @@ if fichier_principal is not None:
                 y=[moyenne_globale] * len(moyennes_par_periode[periode_selectionnee].unique()),
                 mode='lines',
                 name='Moyenne Ops Selectionnés',
-                line=dict(color='red', dash='dash'),
+                line=dict(color='green', dash='dash'),
                 hoverinfo='skip'
             ))
             for i, operateur in enumerate(operateurs_selectionnes):
