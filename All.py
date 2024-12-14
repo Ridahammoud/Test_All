@@ -194,9 +194,17 @@ if fichier_principal is not None:
             # Ligne de moyenne globale
             fig1.add_trace(go.Scatter(
                 x=moyennes_par_periode[periode_selectionnee].unique(),
-                y=[moyenne_globale] * len(moyennes_par_periode[periode_selectionnee].unique()),
+                y=[moyenne_total] * len(moyennes_par_periode[periode_selectionnee].unique()),
                 mode='lines',
                 name='Moyenne Globale',
+                line=dict(color='red', dash='dash'),
+                hoverinfo='skip'
+            ))
+            fig1.add_trace(go.Scatter(
+                x=moyennes_par_periode[periode_selectionnee].unique(),
+                y=[moyenne_globale] * len(moyennes_par_periode[periode_selectionnee].unique()),
+                mode='lines',
+                name='Moyenne Ops Selectionnés',
                 line=dict(color='red', dash='dash'),
                 hoverinfo='skip'
             ))
