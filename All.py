@@ -183,6 +183,7 @@ if fichier_principal is not None:
             moy_Mensuel = moy_Mensuel.reset_index()
             moy_Mensuel = moy_Mensuel[moy_Mensuel['Prénom et nom'].isin(team_exclus)]
             moy_Mensuel['Repetitions_Mois'] = pd.to_numeric(moy_Mensuel['Repetitions_Mois'], errors='coerce')
+            df_moyenne = df_moyenne[df_moyenne['Prénom et nom'].isin(team_exclus)]
             moyenne_total = df_moyenne['Repetitions'].mean()
 
 # Affichage des graphiques et tableaux côte à côte
