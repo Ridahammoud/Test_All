@@ -280,7 +280,7 @@ if fichier_principal is not None:
                                             st.image(image_path, width=200)
                                         except Exception as e:
                                             st.error(f"Erreur de chargement de l'image : {e}")
-                                     else:
+                                    else:
                                          st.write("Pas de photo disponible")            
                              else:
                                  st.write("Pas de données disponibles pour cet opérateur dans la période sélectionnée.")
