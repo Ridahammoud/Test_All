@@ -246,10 +246,10 @@ if fichier_principal is not None:
         st.dataframe(repetitions_tableau, use_container_width=True)
 
         # Affichage des tableaux
-# Assurez-vous que le chemin est correct et relatif au script
-script_dir = os.path.dirname(__file__)
-st.subheader(f"Tirage au sort de {nombre_lignes} lignes par opérateur")
-df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
+        # Assurez-vous que le chemin est correct et relatif au script
+        script_dir = os.path.dirname(__file__)
+        st.subheader(f"Tirage au sort de {nombre_lignes} lignes par opérateur")
+        df_filtre = df_principal[(df_principal[col_date].dt.date >= debut_periode) & (df_principal[col_date].dt.date <= fin_periode)]
 
 for operateur in operateurs_selectionnes:
     st.write(f"### Tirage pour {operateur}:")
