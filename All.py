@@ -111,7 +111,6 @@ if fichier_principal is not None:
 
         operateurs = df_principal[col_prenom_nom].unique().tolist()
         teams = df_principal['Team'].unique().tolist()
-        teams.insert(0, "Total")
 
         selection_type = st.selectbox("Sélectionner par", ["Opérateur", "Team"])
         if selection_type == "Opérateur":
