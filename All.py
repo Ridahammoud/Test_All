@@ -123,7 +123,7 @@ if fichier_principal is not None:
                 operateurs_selectionnes = df_principal[df_principal['Prénom et nom'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
             elif "Team 2 Hakim" in teams_selectionnes:
                 df_principal = df_principal[df_principal['Team']=='Team 2 Hakim']
-                teams_selectionnes = df_principal['Team 2 Hakim'].unique().tolist()
+                teams_selectionnes = df_principal['Prénom et nom'].unique().tolist()
                 operateurs_selectionnes = df_principal[df_principal['Prénom et nom'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
  
         periodes = ["Jour", "Semaine", "Mois", "Trimestre", "Année"]
