@@ -120,11 +120,11 @@ if fichier_principal is not None:
             if "Team 1 Christian" in teams_selectionnes:
                 df_principal = df_principal[df_principal['Team']=='Team 1 Christian']
                 teams_selectionnes = df_principal['Prénom et nom'].unique().tolist()
-                operateurs_selectionnes = df_principal[df_principal['Team 1 Christian'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
+                operateurs_selectionnes = df_principal[df_principal['Prénom et nom'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
             elif "Team 2 Hakim" in teams_selectionnes:
                 df_principal = df_principal[df_principal['Team']=='Team 2 Hakim']
                 teams_selectionnes = df_principal['Team 2 Hakim'].unique().tolist()
-                operateurs_selectionnes = df_principal[df_principal['Team 2 Hakim'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
+                operateurs_selectionnes = df_principal[df_principal['Prénom et nom'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
  
         periodes = ["Jour", "Semaine", "Mois", "Trimestre", "Année"]
         periode_selectionnee = st.selectbox("Choisissez une période", periodes)
