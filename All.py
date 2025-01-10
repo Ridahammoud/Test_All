@@ -118,9 +118,11 @@ if fichier_principal is not None:
         else:
             teams_selectionnes = st.multiselect("Choisissez une ou plusieurs teams", teams)
             if "Team 1 Christian" in teams_selectionnes:
-                teams_selectionnes = df_principal['Team 1 Christian'].unique().tolist()
+                df_principal = df_principal[df_principal['Team']=='Team 1 Christian']
+                teams_selectionnes = df_principal['Prénom et nom'].unique().tolist()
                 operateurs_selectionnes = df_principal[df_principal['Team 1 Christian'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
             elif "Team 2 Hakim" in teams_selectionnes:
+                df_principal = df_principal[df_principal['Team']=='Team 2 Hakim']
                 teams_selectionnes = df_principal['Team 2 Hakim'].unique().tolist()
                 operateurs_selectionnes = df_principal[df_principal['Team 2 Hakim'].isin(teams_selectionnes)]['Prénom et nom'].unique().tolist()
  
