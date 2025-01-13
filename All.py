@@ -94,9 +94,10 @@ def generate_pdf(df, filename="tableau.pdf"):
 # Configuration de la page Streamlit
 st.set_page_config(page_title="Analyse des Interventions", page_icon="📊", layout="wide")
 st.title("📊 Analyse des interventions des opérateurs")
-
+fichier_principal = pd.read_excel(fichier)
+df_principal = charger_donnees(fichier_principal)
 if fichier_principal is not None:
-    df_principal = charger_donnees(fichier_principal)
+    
     df_principal['Team'] = df_principal['Prénom et nom'].apply(assign_team)
 
     col1, col2 = st.columns([2, 3])
