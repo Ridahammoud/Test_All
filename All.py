@@ -8,6 +8,7 @@ from reportlab.pdfgen import canvas
 import plotly.express as px
 import os
 
+fichier = "https://docs.google.com/spreadsheets/d/1-OO3px051thFioWyM-0mezmt2rt84wRj/export?format=xlsx"
 # Fonction de chargement des données
 @st.cache_data
 def charger_donnees(fichier):
@@ -93,8 +94,6 @@ def generate_pdf(df, filename="tableau.pdf"):
 # Configuration de la page Streamlit
 st.set_page_config(page_title="Analyse des Interventions", page_icon="📊", layout="wide")
 st.title("📊 Analyse des interventions des opérateurs")
-
-fichier_principal = st.file_uploader("Choisissez le fichier principal (donnee_Aesma.xlsx)", type="xlsx")
 
 if fichier_principal is not None:
     df_principal = charger_donnees(fichier_principal)
