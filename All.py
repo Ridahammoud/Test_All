@@ -8,7 +8,6 @@ from reportlab.pdfgen import canvas
 import plotly.express as px
 import os
 
-fichier = 'https://docs.google.com/spreadsheets/d/1-OO3px051thFioWyM-0mezmt2rt84wRj/export?format=xlsx'
 # Fonction de chargement des données
 @st.cache_data
 def charger_donnees(fichier):
@@ -94,7 +93,7 @@ def generate_pdf(df, filename="tableau.pdf"):
 # Configuration de la page Streamlit
 st.set_page_config(page_title="Analyse des Interventions", page_icon="📊", layout="wide")
 st.title("📊 Analyse des interventions des opérateurs")
-fichier_principal = pd.read_excel(fichier)
+fichier_principal = pd.read_excel('https://docs.google.com/spreadsheets/d/1-OO3px051thFioWyM-0mezmt2rt84wRj/export?format=xlsx')
 df_principal = charger_donnees(fichier_principal)
 if fichier_principal is not None:
     
