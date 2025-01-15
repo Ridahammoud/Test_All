@@ -93,7 +93,10 @@ def generate_pdf(df, filename="tableau.pdf"):
 # Configuration de la page Streamlit
 st.set_page_config(page_title="Analyse des Interventions", page_icon="📊", layout="wide")
 st.title("📊 Analyse des interventions des opérateurs")
-fichier_principal = "https://docs.google.com/spreadsheets/d/1-OO3px051thFioWyM-0mezmt2rt84wRj/export?format=xlsx"
+
+url = "https://docs.google.com/spreadsheets/d/1-OO3px051thFioWyM-0mezmt2rt84wRj/export?format=xlsx"
+response = requests.get(url)
+fichier_principal = response
 df_principal = charger_donnees(fichier_principal)
 
 if fichier_principal is not None:
