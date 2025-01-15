@@ -96,7 +96,7 @@ st.title("📊 Analyse des interventions des opérateurs")
 
 url = "https://docs.google.com/spreadsheets/d/1-OO3px051thFioWyM-0mezmt2rt84wRj/export?format=xlsx"
 response = requests.get(url)
-fichier_principal = response
+fichier_principal = response.content
 df_principal = charger_donnees(fichier_principal)
 
 if fichier_principal is not None:
