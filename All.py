@@ -13,32 +13,33 @@ import os
 def charger_donnees(fichier):
     return pd.read_excel(fichier)
 
-team_1_Christian = ["Abdelaziz HANI DDAMIR", "Aboubacar TAMADOU", "Alhousseyni DIA", "Berkant INCE",
-    "Boubakar Sidiki OUEDRAGO", "Boubou GASSAMA", "Chamsoudine ABDOULWAHAB", "Dagobert EWANE JENE",
-    "Dione MBAYE", "Doro DIAW", "Enrique AGUEY - ZINSOU", "Fabien PREVOST", "Fabrice NELIEN",
+team_1_Christian = ["Abdelaziz HANI DDAMIR", "Aboubacar TAMADOU", "Alhousseyni DIA",
+    "Boubakar Sidiki OUEDRAGO", "Karim TRAORE", "Chamsoudine ABDOULWAHAB", "Dagobert EWANE JENE",
+    "Dione MBAYE", "Doro DIAW", "Enrique AGUEY - ZINSOU", "Fabrice NELIEN",
     "Idrissa YATERA", "Jabbar ARSHAD", "Jacques-Robert BERTRAND", "Karamoko YATABARE",
     "Mahamadou NIAKATE", "Mamadou BAGAYOGO", "Mamadou  KANE Team 1", "Mohamed Lamine SAAD", "Moussa SOUKOUNA",
-    "Pascal NOUAGA", "Rachid RAMDANE", "Taha HSINE", "Tommy Lee CASDARD", "Volcankan INCE",
-    "Youssef MEZOUAR", "Youssouf WADIOU", "Elyas BOUZAR", "Reda JDI"]
+    "Pascal NOUAGA", "Tommy Lee CASDARD", "Youssef MEZOUAR", "Youssouf WADIOU", "Elyas BOUZAR", "Reda JDI"]
 
-team_2_Hakim =["Abdoul BA", "Aladji SAKHO", "Amadou SOW", "Arfang CISSE", "Bouabdellah AYAD",
+team_2_Hakim =["Aladji SAKHO", "Amadou SOW", "Arfang CISSE", "Bouabdellah AYAD",
     "Cheickne KEBE", "Dany CHANTRE", "David DIOCKOU N'DIAYE", "Dylan BARON", "Fabien TSOP NANG",
     "Fabrice BADIBENGI", "Faker AJILI", "Fodie KOITA CAMARA", "Gaetan GIRARD", "Idy BARRO",
     "Aboubacar CISSE", "Johnny MICHAUD", "Ladji BAMBA", "Mamadou FOFANA", "Mamadou KANE Team 2",
     "Mamadou SANGARE", "Mamadou SOUMARE", "Mohamed BOUCHLEH", "Mostefa MOKHTARI", "Nassur IBRAHIM",
-    "Riadh MOUSSA", "Saim Haroun BHATTI", "Samir CHIKH", "Tony ALLOT", "Walter TAVARES","Mishal ABOUL KALAM"]
+    "Riadh MOUSSA", "Saim Haroun BHATTI", "Samir CHIKH", "Tony ALLOT", "Walter TAVARES"]
 
-team_exclus = ["Abdelaziz Hani Ddamir", "Aboubacar Tamadou", "Alhousseyni Dia", "Berkant Ince",
-    "Boubakar Sidiki Ouedrago", "Boubou Gassama", "Chamsoudine Abdoulwahab", "Dagobert Ewane Jene",
-    "Dione Mbaye", "Doro Diaw", "Enrique Aguey - Zinsou", "Fabien Prevost", "Fabrice Nelien",
+team_exclus = ["Abdelaziz Hani Ddamir", "Aboubacar Tamadou", "Alhousseyni Dia",
+    "Boubakar Sidiki Ouedrago", "Chamsoudine Abdoulwahab", "Dagobert Ewane Jene",
+    "Dione Mbaye", "Doro Diaw", "Enrique Aguey - Zinsou", "Fabrice Nelien",
     "Idrissa Yatera", "Jabbar Arshad", "Jacques-Robert Bertrand", "Karamoko Yatabare",
-    "Mahamadou Niakate", "Mamadou Bagayogo", "Mamadou  Kane", "Mohamed Lamine Saad", "Moussa Soukouna",
-    "Pascal Nouaga", "Rachid Ramdane", "Taha Hsine", "Tommy Lee Casdard", "Volcankan Ince",
-    "Youssef Mezouar", "Youssouf Wadiou", "Elyas Bouzar", "Reda Jdi","Abdoul Ba", "Aladji Sakho", "Amadou Sow", "Arfang Cisse", "Bouabdellah Ayad",
+    "Mahamadou Niakate", "Mamadou Bagayogo", "Mamadou KANE Team 2","Mamadou KANE Team 1",
+    "Karim TRAORE","Mohamed Lamine Saad", "Moussa Soukouna",
+    "Pascal Nouaga", "Rachid Ramdane", "Tommy Lee Casdard",
+    "Youssef Mezouar", "Youssouf Wadiou", "Elyas Bouzar", "Reda Jdi",
+    "Aladji Sakho", "Amadou Sow", "Arfang Cisse", "Bouabdellah Ayad",
     "Cheickne Kebe", "Dany Chantre", "David Diockou N'Diaye", "Dylan Baron", "Fabien Tsop Nang",
     "Fabrice Badibengi", "Faker Ajili", "Fodie Koita Camara", "Gaetan Girard", "Idy Barro",
-    "Aboubacar Cisse", "Johnny Michaud", "Ladji Bamba", "Mamadou Fofana", "Mamadou Kane",
-    "Mamadou Sangare", "Mamadou Soumare", "Mohamed Bouchleh", "Mostefa Mokhtari", "Nassur Ibrahim",
+    "Aboubacar Cisse", "Johnny Michaud", "Ladji Bamba", "Mamadou Fofana", "Mamadou Sangare", 
+    "Mamadou Soumare", "Mohamed Bouchleh", "Mostefa Mokhtari", "Nassur Ibrahim",
     "Riadh Moussa", "Saim Haroun Bhatti", "Samir Chikh", "Tony Allot", "Walter Tavares"]
 # Ajouter une colonne pour les équipes
 def assign_team(name):
