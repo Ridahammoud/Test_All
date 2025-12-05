@@ -18,7 +18,7 @@ team_1_Christian = ["Abdelaziz HANI DDAMIR", "Aboubacar TAMADOU", "Alhousseyni D
     "Dione MBAYE", "Doro DIAW", "Enrique AGUEY - ZINSOU", "Fabrice NELIEN",
     "Idrissa YATERA", "Jabbar ARSHAD", "Jacques-Robert BERTRAND", "Karamoko YATABARE",
     "Mahamadou NIAKATE", "Mamadou BAGAYOGO", "Mamadou  KANE Team 1", "Mohamed Lamine SAAD", "Moussa SOUKOUNA",
-    "Pascal NOUAGA", "Tommy Lee CASDARD", "Youssef MEZOUAR", "Youssouf WADIOU", "Elyas BOUZAR", "Reda JDI"]
+    "Pascal NOUAGA", "Tommy Lee CASDARD", "Youssouf WADIOU", "Elyas BOUZAR", "Reda JDI"]
 
 team_2_Hakim =["Aladji SAKHO", "Amadou SOW", "Arfang CISSE", "Bouabdellah AYAD",
     "Cheickne KEBE", "Dany CHANTRE", "David DIOCKOU N'DIAYE", "Dylan BARON", "Fabien TSOP NANG",
@@ -33,8 +33,8 @@ team_exclus = ["Abdelaziz Hani Ddamir", "Aboubacar Tamadou", "Alhousseyni Dia",
     "Idrissa Yatera", "Jabbar Arshad", "Jacques-Robert Bertrand", "Karamoko Yatabare",
     "Mahamadou Niakate", "Mamadou Bagayogo", "Mamadou KANE Team 2","Mamadou KANE Team 1",
     "Karim TRAORE","Mohamed Lamine Saad", "Moussa Soukouna",
-    "Pascal Nouaga", "Rachid Ramdane", "Tommy Lee Casdard",
-    "Youssef Mezouar", "Youssouf Wadiou", "Elyas Bouzar", "Reda Jdi",
+    "Rachid Ramdane", "Tommy Lee Casdard",
+    "Youssouf Wadiou", "Elyas Bouzar", "Reda Jdi",
     "Aladji Sakho", "Amadou Sow", "Arfang Cisse", "Bouabdellah Ayad",
     "Cheickne Kebe", "Dany Chantre", "David Diockou N'Diaye", "Dylan Baron", "Fabien Tsop Nang",
     "Fabrice Badibengi", "Faker Ajili", "Fodie Koita Camara", "Gaetan Girard", "Idy Barro",
