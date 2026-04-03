@@ -95,8 +95,8 @@ def generate_pdf(df, filename="tableau.pdf"):
 st.set_page_config(page_title="Analyse des Interventions", page_icon="📊", layout="wide")
 st.title("📊 Analyse des interventions des opérateurs")
 
-# fichier_principal = "https://docs.google.com/spreadsheets/d/1-iyR9W5tjVIn9SuvzuYGR-Ncf6aJLE1x/export?format=xlsx"
-fichier_principal = "https://docs.google.com/spreadsheets/d/1o1xYCT5nv3gvuIdlCTfTX0-kU-bojYol/export?format=xlsx"
+# fichier_principal = "https://docs.google.com/spreadsheets/d/1gzoKfkClUx9MDkTIgx7kFma9oOwk1i6p/export?format=xlsx"
+fichier_principal = "https://docs.google.com/spreadsheets/d/1gzoKfkClUx9MDkTIgx7kFma9oOwk1i6p/export?format=xlsx"
 df_principal = charger_donnees(fichier_principal)
 
 if fichier_principal is not None:
