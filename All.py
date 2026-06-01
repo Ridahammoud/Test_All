@@ -173,8 +173,8 @@ if fichier_principal is not None:
             moyennes_par_periode = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom])['Repetitions'].mean().reset_index()
             col_prenom_nom_exclus = df_principal[df_principal['Prénom et nom'].isin(team_exclus)].columns[4]
             moyennes_par_periode_exclus = repetitions_graph.groupby([periode_selectionnee, col_prenom_nom_exclus])['Repetitions'].mean().reset_index()
-            moyennes_par_operateur = moyennes_par_periode.groupby(['Prénom et nom'])['Repetitions'].mean().reset_index()
-            moyenne_globale = moyennes_par_operateur['Repetitions'].mean()           
+            moyennes_par_operateur = round(moyennes_par_periode.groupby(['Prénom et nom'])['Repetitions'].mean().reset_index(),2)
+            moyenne_globale = round(moyennes_par_operateur['Repetitions'].mean(),2)           
             par_mois = df_principal.groupby(['Prénom et nom', 'Mois']).size().reset_index(name='Repetitions_Mois')
             df_moyenne = df_principal.groupby(groupby_cols).size().reset_index(name='Repetitions')
             moy_Mensuel = par_mois.groupby('Prénom et nom')[['Repetitions_Mois']].mean().reset_index()
