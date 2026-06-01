@@ -180,7 +180,8 @@ if fichier_principal is not None:
             moy_Mensuel = par_mois.groupby('Prénom et nom')[['Repetitions_Mois']].mean().reset_index()
             moy_Mensuel = moy_Mensuel[moy_Mensuel['Prénom et nom'].isin(team_exclus)]
             moy_Mensuel['Repetitions_Mois'] = pd.to_numeric(moy_Mensuel['Repetitions_Mois'], errors='coerce')
-            moyenne_total = df_moyenne['Repetitions'].mean()
+            moy_Mensuel = round(moy_Mensuel,2)
+            moyenne_total = round(df_moyenne['Repetitions'].mean(),2)
 
 # Affichage des graphiques et tableaux côte à côte
 
